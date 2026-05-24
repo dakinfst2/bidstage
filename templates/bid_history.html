@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История ставок — {{ lot.title }} | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        :root{--gold: #D4AF37;--dark-bg: #0F0F0F;--surface: #1A1A1A;}
+        body{font-family: 'Satoshi', sans-serif;background-color: var(--dark-bg);color: #EDEDED;margin:0;padding:0;overflow-x:hidden;}
+        h1, h2, h3, h4{font-family: 'Cabinet Grotesk', sans-serif;}
+        .glass{background: rgba(26, 26, 26, 0.8);backdrop-filter: blur(12px);border: 1px solid rgba(255, 255, 255, 0.05);}
+        .timer-font{font-family: 'JetBrains Mono', monospace;}
+        .gold-border{border-color: var(--gold);}
+        .custom-scrollbar::-webkit-scrollbar{width: 6px;}
+        .custom-scrollbar::-webkit-scrollbar-track{background: rgba(255,255,255,0.02);}
+        .custom-scrollbar::-webkit-scrollbar-thumb{background: rgba(212, 175, 55, 0.3);border-radius: 10px;}
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover{background: rgba(212, 175, 55, 0.5);}
+        .leader-row{background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0) 100%);border-left: 4px solid var(--gold);}
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-50 glass h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+            <div class="flex items-center gap-6 lg:gap-12">
+                <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                </a>
+                <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    <a href="/" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                    <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                    <a href="/faq" class="hover:text-[var(--gold)] transition-colors">FAQ</a>
+                    <a href="/my-tickets" class="hover:text-[var(--gold)] transition-colors text-nowrap">Мои билеты</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4 lg:gap-8">
+                <div class="hidden md:flex items-center gap-3 lg:gap-5">
+                    <button id="nav-login" class="text-sm font-bold hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Вход</button>
+                    <button id="nav-signup" class="bg-[var(--gold)] text-black px-5 lg:px-7 py-2.5 rounded-full text-sm font-extrabold uppercase tracking-widest transition-all active:scale-95">Регистрация</button>
+                </div>
+                <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col">
+            <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+                <a href="/" class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                </a>
+                <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+            <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+                <a href="/" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Аукционы</a>
+                <a href="/lot/{{ lot.id }}" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Назад к лоту</a>
+                <div class="h-px w-32 bg-white/10"></div>
+                <a href="/login" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest text-lg">Вход</a>
+                <a href="/register" class="bg-[var(--gold)] text-black px-8 py-3 rounded-full text-lg font-bold">Регистрация</a>
+            </nav>
+        </div>
+
+        <main class="flex-1 pt-24 md:pt-32 pb-20 max-w-7xl mx-auto px-4 md:px-8 w-full">
+            <section>
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 text-[var(--gold)] text-sm font-bold uppercase tracking-widest">
+                            <iconify-icon icon="lucide:history"></iconify-icon>История ставок
+                        </div>
+                        <h1 class="text-5xl font-black text-white">{{ lot.title }}</h1>
+                        <p class="text-gray-500">Полный лог активности аукциона • VIP Пакет #{{ lot.id }}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <a href="/lot/{{ lot.id }}" class="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all">
+                            <iconify-icon icon="lucide:arrow-left"></iconify-icon> Назад к лоту
+                        </a>
+                        <button class="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all">
+                            <iconify-icon icon="lucide:download"></iconify-icon> Экспорт PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-[var(--surface)] p-6 rounded-3xl border border-white/5 space-y-2">
+                        <p class="text-gray-500 text-xs uppercase font-bold tracking-widest">Участники</p>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-3xl font-bold text-white" id="totalParticipants">0</h3>
+                            <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center">
+                                <iconify-icon icon="lucide:users"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-[var(--surface)] p-6 rounded-3xl border border-white/5 space-y-2">
+                        <p class="text-gray-500 text-xs uppercase font-bold tracking-widest">Всего ставок</p>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-3xl font-bold text-white" id="totalBids">0</h3>
+                            <div class="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-full flex items-center justify-center">
+                                <iconify-icon icon="lucide:gavel"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-[var(--surface)] p-6 rounded-3xl border border-white/5 space-y-2">
+                        <p class="text-gray-500 text-xs uppercase font-bold tracking-widest">Рост цены</p>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-3xl font-bold text-green-500" id="priceGrowth">+0 AMD</h3>
+                            <div class="w-10 h-10 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center">
+                                <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-[var(--surface)] p-6 rounded-3xl border border-white/5 space-y-2">
+                        <p class="text-gray-500 text-xs uppercase font-bold tracking-widest">Средний шаг</p>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-3xl font-bold text-white"><span id="avgStep">0</span> <span class="text-sm text-gray-500">AMD</span></h3>
+                            <div class="w-10 h-10 bg-[var(--gold)]/10 text-[var(--gold)] rounded-full flex items-center justify-center">
+                                <iconify-icon icon="lucide:calculator"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bid History Table -->
+                <div class="bg-[var(--surface)] rounded-3xl border border-white/5 overflow-hidden flex flex-col min-h-[600px]">
+                    <div class="p-6 border-b border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 bg-white/[0.02]">
+                        <div class="flex items-center gap-4 w-full md:w-auto">
+                            <div class="relative flex-1 md:flex-none">
+                                <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                                <input type="text" id="searchInput" placeholder="Найти участника..." class="bg-black/40 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--gold)]/50 w-full md:w-64 text-white">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 z-10 bg-[#1A1A1A] border-b border-white/10 shadow-xl">
+                                <tr class="text-[10px] uppercase font-bold tracking-widest text-gray-500">
+                                    <th class="px-8 py-5">Участник</th>
+                                    <th class="px-8 py-5">Статус</th>
+                                    <th class="px-8 py-5">Дата и время</th>
+                                    <th class="px-8 py-5 text-right">Сумма ставки</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5 text-sm" id="bidHistoryTable">
+                                <tr>
+                                    <td colspan="4" class="px-8 py-8 text-center text-gray-500">Загрузка...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-6 border-t border-white/5 bg-white/[0.02] flex items-center justify-between">
+                        <p class="text-sm text-gray-500">Показано <span id="shownBids">0</span> ставок из <span id="totalBidsFooter">0</span></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-black pt-32 pb-12 border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+                <div class="col-span-1 md:col-span-2 space-y-10">
+                    <a href="/" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3"><iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore</a>
+                    <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Премьерный пункт назначения для аукционов билетов на концерты в Армении.</p>
+                    <div class="flex items-center gap-5">
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:instagram"></iconify-icon></a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:facebook"></iconify-icon></a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:twitter"></iconify-icon></a>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors"><a href="/">Просмотреть лоты</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/#how-it-works">Как это работает</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/faq">FAQ</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/my-tickets">Мои билеты</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/profile">Профиль</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors"><a href="/terms">Условия использования</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/privacy">Политика конфиденциальности</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/rules">Правила аукциона</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/guarantee">Гарантия билета</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+                <p>© 2026 Encore Армения. Все права защищены.</p>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                    <p>Support: +374 10 55 55 55</p>
+                    <p>Yerevan, Republic Square 1</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='security.js') }}"></script>
+    <script>
+        const lotId = {{ lot.id }};
+        let allBids = [];
+        
+        async function loadFullHistory() {
+            try {
+                const response = await fetch(`/api/lots/${lotId}/bids`);
+                const bids = await response.json();
+                allBids = bids;
+                
+                const tbody = document.getElementById('bidHistoryTable');
+                
+                if (bids.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-8 text-center text-gray-500">Ставок пока нет</td></tr>';
+                    return;
+                }
+                
+                // Обновляем статистику
+                document.getElementById('totalBids').textContent = bids.length;
+                document.getElementById('totalBidsFooter').textContent = bids.length;
+                document.getElementById('shownBids').textContent = bids.length;
+                
+                const uniqueUsers = new Set(bids.map(b => b.user_id)).size;
+                document.getElementById('totalParticipants').textContent = uniqueUsers;
+                
+                // Рост цены
+                const startPrice = {{ lot.start_price }};
+                const currentPrice = bids[0].amount;
+                const growth = currentPrice - startPrice;
+                document.getElementById('priceGrowth').textContent = `+${growth.toLocaleString()} AMD`;
+                
+                // Средний шаг
+                let totalSteps = 0;
+                for (let i = 0; i < bids.length - 1; i++) {
+                    totalSteps += bids[i].amount - bids[i + 1].amount;
+                }
+                const avgStep = bids.length > 1 ? Math.round(totalSteps / (bids.length - 1)) : 0;
+                document.getElementById('avgStep').textContent = avgStep.toLocaleString();
+                
+                renderBids(bids);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+            }
+        }
+        
+        function renderBids(bids) {
+            const tbody = document.getElementById('bidHistoryTable');
+            
+            tbody.innerHTML = bids.map((bid, index) => {
+                const date = new Date(bid.created_at);
+                const dateStr = date.toLocaleDateString('ru-RU');
+                const timeStr = date.toLocaleTimeString('ru-RU');
+                const isLeader = index === 0;
+                
+                return `
+                    <tr class="hover:bg-white/5 transition-colors ${isLeader ? 'leader-row border-y border-[var(--gold)]/20' : ''}">
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full ${isLeader ? 'bg-[var(--gold)] text-black' : 'bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10'} flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                    ${escapeHtml(String(bid.username || '').substring(0, 2).toUpperCase())}
+                                </div>
+                                <div class="flex flex-col min-w-0 max-w-[140px] sm:max-w-[220px]">
+                                    <span class="font-${isLeader ? 'black' : 'medium'} ${isLeader ? 'text-white text-base' : 'text-white'} truncate">${escapeHtml(bid.username)}</span>
+                                    ${isLeader ? '<span class="text-[10px] text-[var(--gold)] font-bold uppercase tracking-widest flex items-center gap-1"><iconify-icon icon="lucide:crown"></iconify-icon> Текущий лидер</span>' : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 ${isLeader ? 'font-bold text-[var(--gold)]' : 'text-gray-500'}">
+                            ${isLeader ? 'Максимальная ставка' : 'Участник'}
+                        </td>
+                        <td class="px-8 py-6 ${isLeader ? 'text-white font-bold' : 'text-gray-400'} timer-font">
+                            ${isLeader ? 'Сегодня, ' : ''}${escapeHtml(dateStr)}, ${escapeHtml(timeStr)}
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            ${isLeader ? `
+                                <div class="flex flex-col items-end">
+                                    <span class="text-3xl font-black text-white leading-none">${Number(bid.amount).toLocaleString()}</span>
+                                    <span class="text-xs font-bold text-[var(--gold)] tracking-widest">AMD</span>
+                                </div>
+                            ` : `
+                                <span class="font-bold text-white uppercase">${Number(bid.amount).toLocaleString()} AMD</span>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Поиск
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allBids.filter(bid => bid.username.toLowerCase().includes(query));
+            renderBids(filtered);
+            document.getElementById('shownBids').textContent = filtered.length;
+        });
+        
+        // Бургер-меню
+        document.getElementById('burgerBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.remove('hidden');
+        });
+        document.getElementById('closeMobileMenu').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.add('hidden');
+        });
+        
+        // Кнопки навигации
+        async function setupAuthButtons() {
+            try {
+                const r = await fetch('/api/me');
+                if (r.ok) {
+                    const user = await r.json();
+                    const loginBtn = document.getElementById('nav-login');
+                    const signupBtn = document.getElementById('nav-signup');
+                    loginBtn.textContent = user.username;
+                    loginBtn.onclick = (e) => { e.preventDefault(); };
+                    signupBtn.textContent = 'Выйти';
+                    signupBtn.onclick = async () => {
+                        await fetch('/api/logout', { method: 'POST' });
+                        window.location.reload();
+                    };
+                    return;
+                }
+            } catch (e) {}
+            document.getElementById('nav-login').addEventListener('click', () => {
+                window.location.href = '/login';
+            });
+            document.getElementById('nav-signup').addEventListener('click', () => {
+                window.location.href = '/register';
+            });
+        }
+        setupAuthButtons();
+        
+        loadFullHistory();
+        setInterval(loadFullHistory, 10000);
+    </script>
+    <script src="{{ url_for('static', filename='balance.js') }}"></script>
+</body>
+</html>

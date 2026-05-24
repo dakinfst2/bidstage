@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Электронный билет | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        :root{--gold:#D4AF37;--dark-bg:#0F0F0F;--surface:#1A1A1A;}
+        body{font-family:'Satoshi',sans-serif;background-color:var(--dark-bg);color:#EDEDED;margin:0;padding:0;}
+        .glass{background:rgba(26,26,26,0.8);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05);}
+        .cabinet-font{font-family:'Cabinet Grotesk',sans-serif;}
+        .mono-font{font-family:'JetBrains Mono',monospace;}
+        .ticket-gradient{background:linear-gradient(135deg,#1A1A1A 0%,#111111 100%);position:relative;overflow:hidden;}
+        .ticket-gradient::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at center,rgba(214,175,55,0.05) 0%,transparent 70%);pointer-events:none;}
+        .perforation{background-image:radial-gradient(circle,var(--dark-bg) 6px,transparent 6px);background-size:24px 24px;background-position:center;}
+        .gold-border{border:1px solid rgba(214,175,55,0.3);}
+        .gold-glow{box-shadow:0 0 40px rgba(214,175,55,0.1);}
+        @media print {
+            header, footer, .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-50 glass h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5 no-print">
+            <div class="flex items-center gap-6 lg:gap-12">
+                <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                </a>
+                <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    <a href="/" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                    <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                    <a href="/faq" class="hover:text-[var(--gold)] transition-colors">FAQ</a>
+                    <a href="/my-tickets" class="text-[var(--gold)] text-nowrap">Мои билеты</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4 lg:gap-8">
+                <a href="/profile" class="hidden md:flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-[var(--gold)] flex items-center justify-center text-black font-bold text-xs">
+                        {{ order.user.username[:2]|upper }}
+                    </div>
+                    <span class="text-sm font-bold">{{ order.user.username }}</span>
+                </a>
+                <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col no-print">
+            <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+                <a href="/" class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                </a>
+                <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+            <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+                <a href="/" class="hover:text-[var(--gold)] uppercase tracking-widest">Просмотреть лоты</a>
+                <a href="/faq" class="hover:text-[var(--gold)] uppercase tracking-widest">FAQ</a>
+                <a href="/my-tickets" class="hover:text-[var(--gold)] uppercase tracking-widest">Мои билеты</a>
+                <a href="/profile" class="hover:text-[var(--gold)] uppercase tracking-widest">Профиль</a>
+            </nav>
+        </div>
+
+        <main class="flex-1 pt-32 pb-24 px-8 max-w-7xl mx-auto w-full">
+            <!-- Status Header -->
+            <div class="mb-12 text-center">
+                <div class="inline-flex items-center gap-2 bg-green-500/10 text-green-500 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-widest mb-4 border border-green-500/20">
+                    <iconify-icon icon="lucide:check-circle"></iconify-icon>Оплата подтверждена
+                </div>
+                <h1 class="text-4xl font-bold text-white cabinet-font">Ваш билет готов к использованию</h1>
+                <p class="text-gray-500 mt-2">Распечатайте его или сохраните на телефоне для входа на мероприятие</p>
+            </div>
+
+            <!-- Ticket -->
+            <div class="relative flex flex-col items-center">
+                <div class="w-full max-w-5xl ticket-gradient gold-border rounded-[40px] flex flex-col md:flex-row gold-glow mb-12">
+                    <!-- Left Side -->
+                    <div class="flex-1 p-10 md:p-14 border-b md:border-b-0 md:border-r border-white/5 relative">
+                        <div class="flex justify-between items-start mb-12">
+                            <div class="space-y-1">
+                                <p class="text-[var(--gold)] font-bold text-xs uppercase tracking-[0.2em] cabinet-font">Exclusive VIP Pass</p>
+                                <h2 class="text-5xl md:text-6xl font-black text-white cabinet-font leading-none uppercase">{{ order.lot.title.split(':')[0] }}</h2>
+                                <p class="text-xl text-gray-400 mt-2 font-medium">{% if ':' in order.lot.title %}{{ order.lot.title.split(':')[1] }}{% endif %}</p>
+                            </div>
+                            <iconify-icon icon="lucide:qr-code" class="text-5xl text-white/30"></iconify-icon>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-y-10 gap-x-6">
+                            <div class="space-y-1">
+                                <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Мероприятие</p>
+                                <p class="text-white font-bold text-lg">{{ order.lot.venue }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Дата и Время</p>
+                                <p class="text-white font-bold text-lg">{{ order.lot.date }}, 20:00</p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Место</p>
+                                <p class="text-white font-bold text-lg">VIP Box 15, Seat 1</p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Владелец</p>
+                                <p class="text-white font-bold text-lg">{{ order.user.username }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 flex items-center gap-4">
+                            <div class="flex -space-x-3">
+                                <div class="w-10 h-10 rounded-full border-2 border-white/10 bg-black flex items-center justify-center text-xs font-bold">BS</div>
+                                <div class="w-10 h-10 rounded-full border-2 border-white/10 bg-black flex items-center justify-center text-xs font-bold">VIP</div>
+                            </div>
+                            <p class="text-xs text-gray-500 uppercase tracking-widest">Official Partners & Organizers</p>
+                        </div>
+                    </div>
+
+                    <!-- Perforation -->
+                    <div class="hidden md:flex flex-col justify-between py-10 items-center w-px perforation relative">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[var(--dark-bg)] border border-white/5"></div>
+                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[var(--dark-bg)] border border-white/5"></div>
+                    </div>
+
+                    <!-- Right Side - QR -->
+                    <div class="w-full md:w-[320px] p-10 flex flex-col items-center justify-center bg-white/5">
+                        <div class="p-4 bg-white rounded-3xl mb-8 gold-glow">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BIDSTAGE-{{ order.order_code }}" alt="Entry QR Code" class="w-48 h-48">
+                        </div>
+                        <div class="text-center space-y-4">
+                            <p class="mono-font text-white text-sm font-bold tracking-widest uppercase">Order #{{ order.order_code }}</p>
+                            <div class="py-2 px-4 border border-white/10 rounded-lg inline-block">
+                                <iconify-icon icon="lucide:barcode" class="text-5xl text-white opacity-40"></iconify-icon>
+                                <p class="text-[8px] mono-font mt-1 text-gray-500">{{ order.id }}{{ order.user_id }}{{ order.lot_id }}{{ order.amount }}</p>
+                            </div>
+                            <p class="text-xs text-gray-400 max-w-[180px] mx-auto">Предъявите этот QR-код сотруднику на входе</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-4 w-full no-print">
+                    <button id="action-download" class="flex items-center gap-3 bg-white text-black px-8 py-4 rounded-2xl font-bold hover:bg-[var(--gold)] transition-all active:scale-95">
+                        <iconify-icon icon="lucide:download" class="text-xl"></iconify-icon> Скачать PDF
+                    </button>
+                    <button id="action-print" class="flex items-center gap-3 bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl font-bold hover:bg-white/10 transition-all active:scale-95">
+                        <iconify-icon icon="lucide:printer" class="text-xl"></iconify-icon> Распечатать
+                    </button>
+                    <button id="action-share" class="flex items-center gap-3 bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl font-bold hover:bg-white/10 transition-all active:scale-95">
+                        <iconify-icon icon="lucide:share-2" class="text-xl"></iconify-icon> Поделиться
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 no-print">
+                <div class="bg-[var(--surface)] p-8 rounded-3xl border border-white/5 space-y-4">
+                    <div class="w-12 h-12 bg-[var(--gold)]/10 text-[var(--gold)] rounded-2xl flex items-center justify-center text-2xl">
+                        <iconify-icon icon="lucide:info"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Правила входа</h3>
+                    <ul class="text-sm text-gray-500 space-y-3">
+                        <li class="flex gap-2"><span class="text-[var(--gold)]">•</span> Вход открывается за 2 часа до начала мероприятия.</li>
+                        <li class="flex gap-2"><span class="text-[var(--gold)]">•</span> При себе необходимо иметь оригинал документа.</li>
+                        <li class="flex gap-2"><span class="text-[var(--gold)]">•</span> Проход на VIP-места через отдельный вход A1.</li>
+                    </ul>
+                </div>
+                <div class="bg-[var(--surface)] p-8 rounded-3xl border border-white/5 space-y-4">
+                    <div class="w-12 h-12 bg-[var(--gold)]/10 text-[var(--gold)] rounded-2xl flex items-center justify-center text-2xl">
+                        <iconify-icon icon="lucide:refresh-cw"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Условия обмена</h3>
+                    <ul class="text-sm text-gray-500 space-y-3">
+                        <li class="flex gap-2"><span class="text-[var(--gold)]">•</span> Билет не подлежит возврату или обмену.</li>
+                        <li class="flex gap-2"><span class="text-[var(--gold)]">•</span> Перепродажа билета строго запрещена.</li>
+                        <li class="flex gap-2"><span class="text-[var(--gold)]">•</span> Утерянный билет можно восстановить в личном кабинете.</li>
+                    </ul>
+                </div>
+                <div class="bg-[var(--surface)] p-8 rounded-3xl border border-white/5 space-y-4">
+                    <div class="w-12 h-12 bg-[var(--gold)]/10 text-[var(--gold)] rounded-2xl flex items-center justify-center text-2xl">
+                        <iconify-icon icon="lucide:phone-call"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Поддержка</h3>
+                    <p class="text-sm text-gray-500">Возникли вопросы или проблемы с билетом? Наша команда готова помочь 24/7.</p>
+                    <div class="pt-2 space-y-2">
+                        <p class="text-white font-bold">+374 10 55 55 55</p>
+                        <p class="text-gray-500 text-sm">support@concertauction.online</p>
+                    </div>
+                    <a href="#" class="inline-block text-[var(--gold)] text-sm font-bold uppercase tracking-widest hover:underline">Написать в чат</a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-black pt-32 pb-12 border-t border-white/5 no-print">
+            <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+                <div class="col-span-1 md:col-span-2 space-y-10">
+                    <a href="/" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3"><iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore</a>
+                    <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Премьерный пункт назначения для аукционов билетов на концерты в Армении.</p>
+                    <div class="flex items-center gap-5">
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:instagram"></iconify-icon></a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:facebook"></iconify-icon></a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:twitter"></iconify-icon></a>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors"><a href="/">Просмотреть лоты</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/#how-it-works">Как это работает</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/faq">FAQ</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/my-tickets">Мои билеты</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/profile">Профиль</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors"><a href="/terms">Условия использования</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/privacy">Политика конфиденциальности</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/rules">Правила аукциона</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/guarantee">Гарантия билета</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+                <p>© 2026 Encore Армения. Все права защищены.</p>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                    <p>Support: +374 10 55 55 55</p>
+                    <p>Yerevan, Republic Square 1</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('burgerBtn')?.addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.remove('hidden');
+        });
+        document.getElementById('closeMobileMenu')?.addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.add('hidden');
+        });
+        
+        document.getElementById('action-print').addEventListener('click', () => window.print());
+        
+        document.getElementById('action-download').addEventListener('click', () => {
+            // PDF generation with native print to PDF
+            window.print();
+        });
+        
+        document.getElementById('action-share').addEventListener('click', async () => {
+            const url = window.location.href;
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Мой билет Encore',
+                        text: 'Я выиграл билет на концерт!',
+                        url: url
+                    });
+                } catch (e) {}
+            } else {
+                await navigator.clipboard.writeText(url);
+                alert('Ссылка скопирована в буфер обмена');
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='balance.js') }}"></script>
+</body>
+</html>

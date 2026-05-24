@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Виртуальные окружения
+venv/
+.venv/
+env/
+
+# База данных и логи
+instance/
+*.db
+*.log
+
+# Секреты
+.env
+
+# Редакторы
+.vscode/
+.idea/
+.DS_Store
+
+# Claude Code — внутренние файлы
+.claude/
+
+# Дизайн-макеты (не для репо)
+design_mockup.html
+
+# Внутренняя документация — исключена из публичного репо
+CLAUDE.md
+CHANGES.md
+QUICKSTART.md
+START_HERE.md
+INDEX.md
+SPEECH.md
+FOR_PARENTS.md
+PRESENTATION.md
+PROJECT_SUMMARY.md
+PROJECT_STRUCTURE.md
+WIREFRAME.md

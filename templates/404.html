@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Страница не найдена | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --dark-bg: #0F0F0F; --surface: #1A1A1A; --gold-glow: rgba(212, 175, 55, 0.3); }
+        body { font-family: 'Satoshi', sans-serif; background-color: var(--dark-bg); color: #EDEDED; margin: 0; padding: 0; overflow-x: hidden; }
+        h1, h2, h3, h4 { font-family: 'Cabinet Grotesk', sans-serif; }
+        .gold-gradient { background: linear-gradient(135deg, var(--gold) 0%, #B8860B 100%); }
+        .glass { background: rgba(26, 26, 26, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-20px) rotate(2deg); } }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .glow-hover:hover { box-shadow: 0 0 30px var(--gold-glow); }
+    </style>
+</head>
+<body>
+<div class="min-h-screen flex flex-col relative">
+    <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[var(--gold)]/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-[var(--gold)]/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+        <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+            <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+        </a>
+        <a href="/" class="text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2">
+            <iconify-icon icon="lucide:home"></iconify-icon><span class="hidden md:inline">На главную</span>
+        </a>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center pt-32 pb-20 px-4 md:px-8">
+        <div class="max-w-4xl w-full text-center space-y-8 md:space-y-12">
+            <div class="relative inline-block animate-float">
+                <div class="relative flex items-center justify-center">
+                    <h1 class="text-[120px] md:text-[180px] lg:text-[240px] font-black text-white leading-none opacity-5 tracking-tighter">404</h1>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="relative p-6 md:p-8 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] rounded-[32px] border border-white/10 shadow-2xl overflow-hidden">
+                            <div class="flex flex-col items-center gap-4 w-48 md:w-64">
+                                <iconify-icon icon="lucide:ticket-x" class="text-5xl md:text-7xl text-[var(--gold)] drop-shadow-[0_0_15px_var(--gold-glow)]"></iconify-icon>
+                                <div class="w-full h-px bg-white/10"></div>
+                                <div class="text-left w-full space-y-2">
+                                    <div class="h-3 w-3/4 bg-white/5 rounded-full"></div>
+                                    <div class="h-3 w-1/2 bg-white/5 rounded-full"></div>
+                                </div>
+                                <div class="absolute -right-8 top-1/2 -translate-y-1/2 bg-[var(--gold)] text-black px-6 py-1 font-black text-[10px] rotate-45 uppercase tracking-[0.2em] shadow-lg">SOLD OUT</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-3xl md:text-5xl lg:text-7xl font-black text-white uppercase tracking-tighter">Страница не найдена</h2>
+                <p class="text-gray-400 text-base md:text-xl max-w-2xl mx-auto leading-relaxed">
+                    К сожалению, билет на эту страницу был продан. Возможно, торги уже закончились или ссылка устарела.
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 pt-4 md:pt-8">
+                <a href="/" class="w-full sm:w-auto gold-gradient text-black px-8 md:px-10 py-4 md:py-5 rounded-2xl font-black text-base md:text-lg uppercase tracking-widest glow-hover transition-all active:scale-95">Вернуться на главную</a>
+                <a href="/" class="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 rounded-2xl border border-white/20 text-white font-black text-base md:text-lg uppercase tracking-widest hover:bg-white/5 transition-all active:scale-95">Активные аукционы</a>
+            </div>
+        </div>
+
+        <section class="max-w-5xl w-full mx-auto mt-16 md:mt-24 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <a href="/" class="group p-6 md:p-8 rounded-3xl bg-[var(--surface)] border border-white/5 hover:border-[var(--gold)]/30 transition-all flex flex-col items-center text-center gap-4">
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="lucide:gavel"></iconify-icon>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-xs md:text-sm">Аукционы</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Все активные лоты</p>
+                </div>
+            </a>
+            <a href="/my-tickets" class="group p-6 md:p-8 rounded-3xl bg-[var(--surface)] border border-white/5 hover:border-[var(--gold)]/30 transition-all flex flex-col items-center text-center gap-4">
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="lucide:ticket"></iconify-icon>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-xs md:text-sm">Мои билеты</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Ваши выигрыши</p>
+                </div>
+            </a>
+            <a href="/faq" class="group p-6 md:p-8 rounded-3xl bg-[var(--surface)] border border-white/5 hover:border-[var(--gold)]/30 transition-all flex flex-col items-center text-center gap-4">
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="lucide:help-circle"></iconify-icon>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-xs md:text-sm">FAQ</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Правила и гайды</p>
+                </div>
+            </a>
+            <a href="mailto:support@concertauction.online" class="group p-6 md:p-8 rounded-3xl bg-[var(--surface)] border border-white/5 hover:border-[var(--gold)]/30 transition-all flex flex-col items-center text-center gap-4">
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="lucide:headphones"></iconify-icon>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-xs md:text-sm">Поддержка</h4>
+                    <p class="text-xs text-gray-500 hidden md:block">Помощь 24/7</p>
+                </div>
+            </a>
+        </section>
+    </main>
+
+    <footer class="bg-black/40 py-10 border-t border-white/5 text-center">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-600 text-[10px] uppercase font-bold tracking-[0.2em]">
+            <p>© 2026 Encore Armenia.</p>
+            <div class="flex flex-wrap items-center justify-center gap-4 md:gap-8">
+                <a href="#" class="hover:text-white transition-colors">Условия</a>
+                <a href="#" class="hover:text-white transition-colors">Приватность</a>
+                <a href="/faq" class="hover:text-white transition-colors">FAQ</a>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

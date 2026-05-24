@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои билеты | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --dark-bg: #0F0F0F; --surface: #1A1A1A; }
+        body { font-family: 'Satoshi', sans-serif; background-color: var(--dark-bg); color: #EDEDED; margin: 0; padding: 0; }
+        h1, h2, h3, h4 { font-family: 'Cabinet Grotesk', sans-serif; }
+        .glass-header { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .ticket-card { background: var(--surface); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .ticket-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+        .gold-outline-btn { border: 1px solid rgba(212, 175, 55, 0.3); transition: all 0.3s ease; }
+        .gold-outline-btn:hover { background: var(--gold); color: #000; }
+        .status-upcoming { color: #10B981; background: rgba(16, 185, 129, 0.1); }
+        .status-past { color: #9CA3AF; background: rgba(156, 163, 175, 0.1); }
+        .status-pending { color: #EAB308; background: rgba(234, 179, 8, 0.1); }
+        .status-canceled { color: #EF4444; background: rgba(239, 68, 68, 0.1); }
+        .status-runnerup { color: #C084FC; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.25); }
+        .pay-timer { color: #9CA3AF; }
+        .pay-timer-urgent { color: #F87171; }
+        .pay-timer-expired { color: #6B7280; text-decoration: line-through; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header h-20 px-4 md:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-6 lg:gap-12">
+            <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+            </a>
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                <a href="/" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                <a href="/faq" class="hover:text-[var(--gold)] transition-colors">FAQ</a>
+                <a href="/my-tickets" class="text-[var(--gold)]">Мои билеты</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4 lg:gap-8">
+            <a href="/profile" id="userBadge" class="hidden md:flex items-center gap-3 p-1.5 pr-4 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors">
+                <div id="userInitials" class="w-8 h-8 rounded-full bg-[var(--gold)] flex items-center justify-center text-black font-bold text-xs">U</div>
+                <p id="userName" class="text-[10px] font-black uppercase tracking-widest text-white leading-none">User</p>
+            </a>
+            <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col">
+        <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+            <a href="/" class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+            </a>
+            <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+            </button>
+        </div>
+        <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+            <a href="/" class="hover:text-[var(--gold)] uppercase tracking-widest">Аукционы</a>
+            <a href="/my-tickets" class="text-[var(--gold)] uppercase tracking-widest">Мои билеты</a>
+            <a href="/profile" class="hover:text-[var(--gold)] uppercase tracking-widest">Профиль</a>
+            <a href="/faq" class="hover:text-[var(--gold)] uppercase tracking-widest">FAQ</a>
+        </nav>
+    </div>
+
+    <!-- Main -->
+    <main class="mt-20 px-4 md:px-8 py-8 md:py-12 max-w-7xl mx-auto w-full">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-12">
+            <div class="space-y-1">
+                <h1 class="text-3xl md:text-5xl font-black text-white uppercase tracking-tight">Мои билеты</h1>
+                <p class="text-gray-500 font-medium">У вас <span id="upcomingCount" class="text-[var(--gold)] font-bold">0 активных</span> и <span id="pastCount">0 прошедших</span> билетов</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-3 mb-8 md:mb-10 pb-8 md:pb-10 border-b border-white/5">
+            <button data-filter="all" class="filter-btn px-5 md:px-6 py-2.5 bg-[var(--gold)] text-black rounded-full text-xs font-black uppercase tracking-widest">Все</button>
+            <button data-filter="upcoming" class="filter-btn px-5 md:px-6 py-2.5 bg-white/5 text-gray-400 border border-white/10 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white/10">Предстоящие</button>
+            <button data-filter="pending" class="filter-btn px-5 md:px-6 py-2.5 bg-white/5 text-gray-400 border border-white/10 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white/10">Ожидают оплаты</button>
+            <button data-filter="past" class="filter-btn px-5 md:px-6 py-2.5 bg-white/5 text-gray-400 border border-white/10 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white/10">Прошедшие</button>
+        </div>
+
+        <!-- Tickets Grid -->
+        <div id="ticketsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            <div class="col-span-full text-center text-gray-500 py-16">Загрузка...</div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden text-center py-20">
+            <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-white/5 flex items-center justify-center">
+                <iconify-icon icon="lucide:ticket-x" class="text-5xl text-gray-600"></iconify-icon>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-3">У вас пока нет билетов</h3>
+            <p class="text-gray-500 mb-8">Сделайте ставку на активный аукцион чтобы получить свой первый билет</p>
+            <a href="/" class="inline-block bg-[var(--gold)] text-black px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-sm">К аукционам</a>
+        </div>
+    </main>
+
+    <footer class="bg-black pt-32 pb-12 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+            <div class="col-span-1 md:col-span-2 space-y-10">
+                <a href="/" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3"><iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore</a>
+                <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Премьерный пункт назначения для аукционов билетов на концерты в Армении.</p>
+                <div class="flex items-center gap-5">
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:instagram"></iconify-icon></a>
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:facebook"></iconify-icon></a>
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:twitter"></iconify-icon></a>
+                </div>
+            </div>
+            <div>
+                <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    <li class="hover:text-white transition-colors"><a href="/">Просмотреть лоты</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/#how-it-works">Как это работает</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/faq">FAQ</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/my-tickets">Мои билеты</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/profile">Профиль</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    <li class="hover:text-white transition-colors"><a href="/terms">Условия использования</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/privacy">Политика конфиденциальности</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/rules">Правила аукциона</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/guarantee">Гарантия билета</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+            <p>© 2026 Encore Армения. Все права защищены.</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                <p>Support: +374 10 55 55 55</p>
+                <p>Yerevan, Republic Square 1</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script src="{{ url_for('static', filename='security.js') }}"></script>
+<script>
+    let allOrders = [];
+    let currentFilter = 'all';
+    
+    async function loadTickets() {
+        try {
+            const me = await fetch('/api/me');
+            if (!me.ok) {
+                window.location.href = '/login';
+                return;
+            }
+            const user = await me.json();
+            document.getElementById('userName').textContent = user.username;
+            document.getElementById('userInitials').textContent = user.username.substring(0, 2).toUpperCase();
+            
+            const r = await fetch('/api/my-orders');
+            allOrders = await r.json();
+            renderTickets();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+    function getStatus(order) {
+        const now = new Date();
+        const eventDate = new Date(order.lot.end_time);
+        if (order.status === 'pending') return 'pending';
+        if (order.status === 'expired' || order.status === 'cancelled') return 'canceled';
+        if (eventDate > now) return 'upcoming';
+        return 'past';
+    }
+    
+    function renderTickets() {
+        const filtered = currentFilter === 'all' 
+            ? allOrders 
+            : allOrders.filter(o => getStatus(o) === currentFilter);
+        
+        const grid = document.getElementById('ticketsGrid');
+        const empty = document.getElementById('emptyState');
+        
+        // Счётчики
+        const upcoming = allOrders.filter(o => getStatus(o) === 'upcoming').length;
+        const past = allOrders.filter(o => getStatus(o) === 'past').length;
+        document.getElementById('upcomingCount').textContent = `${upcoming} активных`;
+        document.getElementById('pastCount').textContent = `${past} прошедших`;
+        
+        if (allOrders.length === 0) {
+            grid.classList.add('hidden');
+            empty.classList.remove('hidden');
+            return;
+        }
+        
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-16">Нет билетов в этой категории</div>';
+            return;
+        }
+        
+        grid.innerHTML = filtered.map(order => {
+            const status = getStatus(order);
+            const statusBadges = {
+                upcoming: '<span class="px-3 py-1 status-upcoming rounded-full text-[10px] font-black uppercase tracking-widest">Предстоящий</span>',
+                pending: '<span class="px-3 py-1 status-pending rounded-full text-[10px] font-black uppercase tracking-widest">Ожидает оплаты</span>',
+                past: '<span class="px-3 py-1 status-past rounded-full text-[10px] font-black uppercase tracking-widest">Завершено</span>',
+                canceled: '<span class="px-3 py-1 status-canceled rounded-full text-[10px] font-black uppercase tracking-widest">Отменено</span>'
+            };
+
+            const isPast = status === 'past';
+            const isPending = status === 'pending';
+            const link = isPending ? `/winner/${order.id}` : `/ticket/${order.id}`;
+            const linkText = isPending ? 'Оплатить' : 'Билет';
+
+            // Бейдж runner-up'a — поверх картинки, под статус-бейджем
+            const runnerUpBadge = (order.attempt === 2)
+                ? '<div class="mt-2"><span class="px-3 py-1 status-runnerup rounded-full text-[10px] font-black uppercase tracking-widest">Runner-up</span></div>'
+                : '';
+
+            // Компактный таймер оплаты — только для pending. Атрибут
+            // data-pay-deadline читает фоновая функция updatePayTimers(),
+            // которая запускается раз в минуту. Текст ставится через
+            // textContent в той функции (см. ниже), не через innerHTML.
+            const payTimerHtml = isPending
+                ? `<div class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                       <iconify-icon icon="lucide:timer" class="text-base"></iconify-icon>
+                       <span class="pay-timer" data-pay-deadline="${escapeHtml(order.payment_deadline)}">—</span>
+                   </div>`
+                : '';
+
+            return `
+                <div class="ticket-card rounded-[32px] overflow-hidden flex flex-col sm:flex-row ${isPast ? 'opacity-60 hover:opacity-100' : ''}">
+                    <div class="w-full sm:w-48 h-48 sm:h-auto relative overflow-hidden">
+                        <img src="${escapeHtml(safeUrl(order.lot.image_url) || LOT_PLACEHOLDER_IMG)}" onerror="this.onerror=null;this.src='/static/img/lots/placeholder.jpg'" class="w-full h-full object-cover" alt="${escapeHtml(order.lot.title)}">
+                        <div class="absolute top-4 left-4">${statusBadges[status]}${runnerUpBadge}</div>
+                    </div>
+                    <div class="flex-1 p-6 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white uppercase leading-none tracking-tight mb-3">${escapeHtml(order.lot.title)}</h3>
+                            ${payTimerHtml}
+                            <div class="space-y-2 mb-6">
+                                <p class="flex items-center gap-2 text-gray-400 text-sm">
+                                    <iconify-icon icon="lucide:map-pin" class="text-[var(--gold)]"></iconify-icon>${escapeHtml(order.lot.venue)}
+                                </p>
+                                <p class="flex items-center gap-2 text-gray-400 text-sm">
+                                    <iconify-icon icon="lucide:calendar" class="text-[var(--gold)]"></iconify-icon>${escapeHtml(order.lot.date)}
+                                </p>
+                                <p class="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest">
+                                    <iconify-icon icon="lucide:hash" class="text-[var(--gold)]"></iconify-icon>${escapeHtml(order.order_code)}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 pt-4 border-t border-white/5">
+                            <a href="${link}" class="flex-1 py-2.5 gold-outline-btn rounded-lg text-[10px] font-black uppercase tracking-widest text-center text-gray-300">${escapeHtml(linkText)}</a>
+                            <a href="/lot/${Number(order.lot.id)}" class="p-2.5 gold-outline-btn rounded-lg text-gray-400" title="К лоту">
+                                <iconify-icon icon="lucide:external-link"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        updatePayTimers();
+    }
+
+    // Обновление компактных pay-таймеров на карточках pending Order'ов.
+    // Формат HH:MM (без секунд — обновление раз в минуту, чтобы не дёргалось).
+    // < 1ч — красный, истекло — серый со зачёркиванием.
+    function updatePayTimers() {
+        document.querySelectorAll('[data-pay-deadline]').forEach(el => {
+            let s = el.getAttribute('data-pay-deadline') || '';
+            if (s && !s.endsWith('Z') && !s.includes('+')) s += 'Z';
+            const ms = new Date(s).getTime() - Date.now();
+            el.classList.remove('pay-timer-urgent', 'pay-timer-expired');
+            if (isNaN(ms) || ms <= 0) {
+                el.textContent = 'Время оплаты истекло';
+                el.classList.add('pay-timer-expired');
+                return;
+            }
+            const hours = Math.floor(ms / 3_600_000);
+            const minutes = Math.floor((ms % 3_600_000) / 60_000);
+            el.textContent =
+                `Осталось ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} на оплату`;
+            if (ms < 3_600_000) {
+                el.classList.add('pay-timer-urgent');
+            }
+        });
+    }
+
+    // setInterval запускается один раз глобально, не пересоздаётся при renderTickets().
+    setInterval(updatePayTimers, 60_000);
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('bg-[var(--gold)]', 'text-black');
+                b.classList.add('bg-white/5', 'text-gray-400', 'border', 'border-white/10');
+            });
+            btn.classList.add('bg-[var(--gold)]', 'text-black');
+            btn.classList.remove('bg-white/5', 'text-gray-400', 'border', 'border-white/10');
+            renderTickets();
+        });
+    });
+    
+    document.getElementById('burgerBtn').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.remove('hidden');
+    });
+    document.getElementById('closeMobileMenu').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.add('hidden');
+    });
+    
+    loadTickets();
+</script>
+<script src="{{ url_for('static', filename='balance.js') }}"></script>
+</body>
+</html>

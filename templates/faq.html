@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ — Центр помощи | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --dark: #0F0F0F; --surface: #1A1A1A; }
+        body { background-color: var(--dark); color: #EDEDED; font-family: 'Satoshi', sans-serif; margin: 0; padding: 0; }
+        h1, h2, h3, h4 { font-family: 'Cabinet Grotesk', sans-serif; }
+        .glass-header { background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); }
+        .accordion-item { border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
+        .accordion-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center gap-6 lg:gap-12">
+            <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+            </a>
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                <a href="/" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                <a href="/faq" class="text-[var(--gold)]">FAQ</a>
+                <a href="/my-tickets" class="hover:text-[var(--gold)] transition-colors text-nowrap">Мои билеты</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4 lg:gap-8">
+            <div class="hidden md:flex items-center gap-3 lg:gap-5">
+                <a href="/login" class="text-sm font-bold hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Вход</a>
+                <a href="/register" class="bg-[var(--gold)] text-black px-5 lg:px-7 py-2.5 rounded-full text-sm font-extrabold uppercase tracking-widest transition-all active:scale-95">Регистрация</a>
+            </div>
+            <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col">
+        <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+            <a href="/" class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+            </a>
+            <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+            </button>
+        </div>
+        <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+            <a href="/" class="hover:text-[var(--gold)] uppercase tracking-widest">Аукционы</a>
+            <a href="/login" class="hover:text-[var(--gold)] uppercase tracking-widest text-lg">Вход</a>
+            <a href="/register" class="bg-[var(--gold)] text-black px-8 py-3 rounded-full text-lg font-bold">Регистрация</a>
+        </nav>
+    </div>
+
+    <main class="flex-1 pt-24 md:pt-32 pb-20">
+        <!-- Hero -->
+        <section class="max-w-4xl mx-auto px-4 md:px-8 text-center mb-16">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-[var(--gold)]/10 text-[var(--gold)] rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-6 border border-[var(--gold)]/20">
+                <iconify-icon icon="lucide:help-circle"></iconify-icon> Центр помощи
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-white mb-6 uppercase tracking-tight leading-none">
+                Часто задаваемые<br/><span class="text-[var(--gold)]">вопросы</span>
+            </h1>
+            <p class="text-gray-400 text-base md:text-lg max-w-2xl mx-auto mb-10">
+                Мы собрали ответы на самые популярные вопросы об участии в аукционах Encore.
+            </p>
+            <div class="relative max-w-xl mx-auto border border-white/10 rounded-2xl overflow-hidden bg-[var(--surface)]">
+                <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl"></iconify-icon>
+                <input id="searchInput" type="text" placeholder="Поиск по вопросам..." class="w-full bg-transparent py-4 pl-12 pr-6 text-white focus:outline-none">
+            </div>
+        </section>
+
+        <!-- Tabs + Content -->
+        <section class="max-w-5xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <!-- Tabs -->
+            <aside class="lg:col-span-3 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible">
+                <button data-tab="how" class="faq-tab active w-full text-left px-5 py-3 rounded-xl border bg-[var(--gold)]/10 text-[var(--gold)] border-[var(--gold)]/30 text-sm font-bold uppercase tracking-widest whitespace-nowrap">Аукционы</button>
+                <button data-tab="pay" class="faq-tab w-full text-left px-5 py-3 rounded-xl border border-transparent text-gray-500 hover:text-white text-sm font-bold uppercase tracking-widest whitespace-nowrap">Оплата</button>
+                <button data-tab="ticket" class="faq-tab w-full text-left px-5 py-3 rounded-xl border border-transparent text-gray-500 hover:text-white text-sm font-bold uppercase tracking-widest whitespace-nowrap">Билеты</button>
+                <button data-tab="support" class="faq-tab w-full text-left px-5 py-3 rounded-xl border border-transparent text-gray-500 hover:text-white text-sm font-bold uppercase tracking-widest whitespace-nowrap">Поддержка</button>
+            </aside>
+
+            <!-- Content -->
+            <div class="lg:col-span-9 space-y-6">
+                <div class="bg-[var(--surface)] border border-white/5 rounded-3xl overflow-hidden" id="faqList">
+                    <!-- Заполняется JS -->
+                </div>
+
+                <!-- Contact CTA -->
+                <div class="bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] p-8 md:p-10 rounded-3xl border border-[var(--gold)]/10 text-center flex flex-col items-center">
+                    <div class="w-16 h-16 bg-[var(--gold)]/10 text-[var(--gold)] rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <iconify-icon icon="lucide:messages-square"></iconify-icon>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Не нашли ответ?</h3>
+                    <p class="text-gray-500 mb-8 max-w-sm">Наша команда поддержки готова помочь 24/7.</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="mailto:support@concertauction.online" class="px-6 md:px-8 py-3 md:py-4 bg-[var(--gold)] text-black rounded-2xl font-black uppercase tracking-widest text-xs md:text-sm hover:scale-[1.05] active:scale-95 transition-all">Написать в чат</a>
+                        <a href="tel:+37410555555" class="px-6 md:px-8 py-3 md:py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-xs md:text-sm hover:bg-white/10">+374 10 55 55 55</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-black pt-32 pb-12 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+            <div class="col-span-1 md:col-span-2 space-y-10">
+                <a href="/" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3"><iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore</a>
+                <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Премьерный пункт назначения для аукционов билетов на концерты в Армении.</p>
+                <div class="flex items-center gap-5">
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:instagram"></iconify-icon></a>
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:facebook"></iconify-icon></a>
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:twitter"></iconify-icon></a>
+                </div>
+            </div>
+            <div>
+                <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    <li class="hover:text-white transition-colors"><a href="/">Просмотреть лоты</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/#how-it-works">Как это работает</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/faq">FAQ</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/my-tickets">Мои билеты</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/profile">Профиль</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    <li class="hover:text-white transition-colors"><a href="/terms">Условия использования</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/privacy">Политика конфиденциальности</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/rules">Правила аукциона</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/guarantee">Гарантия билета</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+            <p>© 2026 Encore Армения. Все права защищены.</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                <p>Support: +374 10 55 55 55</p>
+                <p>Yerevan, Republic Square 1</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    const faqData = {
+        how: [
+            { q: 'Как работает аукцион билетов?', a: 'Аукцион Encore — это прозрачная площадка, где цена билета определяется спросом. Вы выбираете лот, изучаете детали и делаете ставку выше текущей. По завершении торгов участник с самой высокой ставкой становится победителем.' },
+            { q: 'Как делать ставки?', a: 'Сначала подтвердите участие, поделившись лотом в соцсетях. После верификации введите сумму ставки (не меньше текущей цены + минимальный шаг) и нажмите «Сделать ставку».' },
+            { q: 'Что произойдет, если я проиграю аукцион?', a: 'Если ваша ставка перебита, вы получите уведомление. Можете вернуться и сделать новую ставку до истечения времени. Если аукцион завершился и вы не лидер — вы ничего не платите.' },
+            { q: 'Что такое минимальный шаг ставки?', a: 'Это фиксированная минимальная сумма, на которую ваша ставка должна превышать текущую. Обычно от 5,000 AMD. Это поддерживает динамику аукциона.' },
+            { q: 'Как долго длится аукцион?', a: 'Время каждого аукциона указано на карточке лота. Если ставка сделана за 60 секунд до конца, таймер автоматически продлевается на 1 минуту.' }
+        ],
+        pay: [
+            { q: 'Какие способы оплаты вы принимаете?', a: 'Visa, MasterCard, ArCa, а также Apple Pay и Google Pay для быстрого завершения транзакции.' },
+            { q: 'Безопасна ли оплата?', a: 'Используем SSL-шифрование и сертифицированные шлюзы по стандарту PCI DSS. Данные карты не сохраняются на наших серверах.' },
+            { q: 'Сколько времени есть на оплату?', a: 'После победы у вас есть 24 часа. Если оплата не поступит, право выкупа перейдёт ко второй максимальной ставке.' }
+        ],
+        ticket: [
+            { q: 'Как я получу электронный билет?', a: 'После оплаты билет с QR-кодом мгновенно появится в разделе «Мои билеты» и будет отправлен на ваш email в формате PDF.' },
+            { q: 'Можно ли передать билет другому?', a: 'Да, можно отправить PDF другу. Помните: каждый QR-код действителен только для одного прохода.' }
+        ],
+        support: [
+            { q: 'Как связаться с поддержкой?', a: 'Чат на сайте, support@concertauction.online или +374 10 55 55 55. Работаем круглосуточно.' }
+        ]
+    };
+    
+    let activeTab = 'how';
+    let activeQuestion = null;
+    
+    function renderFaq(filter = '') {
+        const items = faqData[activeTab] || [];
+        const filtered = filter
+            ? items.filter(it => it.q.toLowerCase().includes(filter.toLowerCase()) || it.a.toLowerCase().includes(filter.toLowerCase()))
+            : items;
+        
+        const container = document.getElementById('faqList');
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="px-8 py-12 text-center text-gray-500">Ничего не найдено</div>';
+            return;
+        }
+        
+        container.innerHTML = filtered.map((item, idx) => `
+            <div class="px-6 md:px-8 py-6 accordion-item">
+                <button onclick="toggleQuestion(${idx})" class="w-full flex items-center justify-between text-left gap-4">
+                    <span class="${activeQuestion === idx ? 'text-[var(--gold)]' : 'text-white'} text-base md:text-lg font-bold tracking-tight">${item.q}</span>
+                    <iconify-icon icon="lucide:chevron-down" class="${activeQuestion === idx ? 'rotate-180 text-[var(--gold)]' : 'text-gray-600'} transition-transform text-xl flex-shrink-0"></iconify-icon>
+                </button>
+                ${activeQuestion === idx ? `<div class="pt-4 text-gray-400 leading-relaxed text-sm md:text-base">${item.a}</div>` : ''}
+            </div>
+        `).join('');
+    }
+    
+    function toggleQuestion(idx) {
+        activeQuestion = activeQuestion === idx ? null : idx;
+        renderFaq(document.getElementById('searchInput').value);
+    }
+    
+    document.querySelectorAll('.faq-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.faq-tab').forEach(b => {
+                b.classList.remove('bg-[var(--gold)]/10', 'text-[var(--gold)]', 'border-[var(--gold)]/30');
+                b.classList.add('border-transparent', 'text-gray-500');
+            });
+            btn.classList.add('bg-[var(--gold)]/10', 'text-[var(--gold)]', 'border-[var(--gold)]/30');
+            btn.classList.remove('border-transparent', 'text-gray-500');
+            
+            activeTab = btn.dataset.tab;
+            activeQuestion = null;
+            renderFaq();
+        });
+    });
+    
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        renderFaq(e.target.value);
+    });
+    
+    document.getElementById('burgerBtn').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.remove('hidden');
+    });
+    document.getElementById('closeMobileMenu').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.add('hidden');
+    });
+    
+    renderFaq();
+</script>
+<script src="{{ url_for('static', filename='balance.js') }}"></script>
+</body>
+</html>

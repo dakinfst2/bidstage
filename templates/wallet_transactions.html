@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История транзакций | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&f[]=satoshi@700,500,400&f[]=jet-brains-mono@400,700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --dark: #0F0F0F; --surface: #1A1A1A; --success: #10B981; --error: #EF4444; --pending: #EAB308; --frozen: #3B82F6; --refund: #8B5CF6; }
+        body { background: var(--dark); color: #EDEDED; font-family: 'Satoshi', sans-serif; margin: 0; }
+        .font-cabinet { font-family: 'Cabinet Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card { background: rgba(26,26,26,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .table-row-hover:hover { background-color: rgba(255,255,255,0.03); }
+        .status-badge { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<header class="fixed top-0 left-0 right-0 z-50 glass-card h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+    <div class="flex items-center gap-6 lg:gap-12">
+        <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+            <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+        </a>
+        <h1 class="hidden md:block font-cabinet font-bold text-lg uppercase tracking-widest text-gray-400">История транзакций</h1>
+    </div>
+    <a href="/profile" class="flex items-center gap-3 text-sm font-bold hover:text-[var(--gold)] transition-colors">
+        <iconify-icon icon="lucide:arrow-left"></iconify-icon> К профилю
+    </a>
+</header>
+
+<main class="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 py-12 mt-20 space-y-8">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="font-cabinet text-3xl md:text-4xl font-black uppercase tracking-tight">История транзакций</h1>
+            <p class="text-gray-500 mt-2 font-medium">Полный контроль всех ваших финансовых операций</p>
+        </div>
+        <div class="relative w-full md:w-64">
+            <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg"></iconify-icon>
+            <input id="searchInput" type="text" placeholder="Поиск..." class="bg-white/5 border border-white/10 rounded-2xl py-3 pl-11 pr-4 text-sm w-full focus:outline-none focus:border-[var(--gold)]/50">
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2" id="filterButtons">
+        <button data-filter="all" class="filter-btn px-5 py-2.5 bg-[var(--gold)] text-black rounded-xl font-bold uppercase text-[10px] tracking-widest">Все</button>
+        <button data-filter="deposit" class="filter-btn px-5 py-2.5 border border-white/10 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/5">Пополнения</button>
+        <button data-filter="payment" class="filter-btn px-5 py-2.5 border border-white/10 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/5">Списания</button>
+        <button data-filter="bid_freeze" class="filter-btn px-5 py-2.5 border border-white/10 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/5">Заморозка</button>
+        <button data-filter="refund" class="filter-btn px-5 py-2.5 border border-white/10 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/5">Возвраты</button>
+    </div>
+
+    <div class="bg-[var(--surface)] rounded-[32px] border border-white/5 overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white/[0.02] border-b border-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
+                        <th class="px-6 md:px-8 py-5">Тип</th>
+                        <th class="px-6 py-5">Описание</th>
+                        <th class="px-6 py-5">Сумма</th>
+                        <th class="px-6 py-5">Статус</th>
+                        <th class="px-6 md:px-8 py-5 text-right">Дата</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/[0.03]" id="txTableBody">
+                    <tr><td colspan="5" class="px-8 py-16 text-center text-gray-500">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-black py-10 border-t border-white/5 mt-16">
+    <div class="max-w-7xl mx-auto px-8 text-center text-gray-600 text-[10px] uppercase tracking-widest font-bold">
+        <p>© 2026 Encore Армения.</p>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='security.js') }}"></script>
+<script>
+    let allTx = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
+    
+    const typeIcons = {
+        deposit: { icon: 'lucide:plus-circle', label: 'Пополнение', color: 'success' },
+        payment: { icon: 'lucide:minus-circle', label: 'Списание', color: 'error' },
+        bid_freeze: { icon: 'lucide:lock', label: 'Заморозка', color: 'frozen' },
+        bid_unfreeze: { icon: 'lucide:unlock', label: 'Разморозка', color: 'success' },
+        refund: { icon: 'lucide:rotate-ccw', label: 'Возврат', color: 'refund' },
+        commission: { icon: 'lucide:percent', label: 'Комиссия', color: 'gray' },
+    };
+    
+    const statusBadges = {
+        success: { icon: 'lucide:check-circle', label: 'Успешно', color: 'success' },
+        pending: { icon: 'lucide:clock', label: 'Ожидание', color: 'pending' },
+        error: { icon: 'lucide:x-circle', label: 'Ошибка', color: 'error' },
+        frozen: { icon: 'lucide:snowflake', label: 'Заморожено', color: 'frozen' }
+    };
+    
+    function colorClass(c) {
+        const map = {
+            success: 'bg-[var(--success)]/10 text-[var(--success)]',
+            error: 'bg-[var(--error)]/10 text-[var(--error)]',
+            pending: 'bg-[var(--pending)]/10 text-[var(--pending)]',
+            frozen: 'bg-[var(--frozen)]/10 text-[var(--frozen)]',
+            refund: 'bg-[var(--refund)]/10 text-[var(--refund)]',
+            gray: 'bg-white/5 text-gray-400'
+        };
+        return map[c] || map.gray;
+    }
+    
+    function render() {
+        let filtered = allTx;
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(t => t.type === currentFilter);
+        }
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(t => 
+                (t.description || '').toLowerCase().includes(q) ||
+                (t.lot_title || '').toLowerCase().includes(q) ||
+                String(t.id).includes(q)
+            );
+        }
+        
+        const tbody = document.getElementById('txTableBody');
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-gray-500">Нет транзакций</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = filtered.map(t => {
+            const typeInfo = typeIcons[t.type] || { icon: 'lucide:circle', label: t.type, color: 'gray' };
+            const statusInfo = statusBadges[t.status] || { icon: 'lucide:circle', label: t.status, color: 'gray' };
+            const date = new Date(t.created_at);
+            const amountColor = t.amount >= 0 ? 'text-[var(--success)]' : 'text-[var(--error)]';
+            const sign = t.amount >= 0 ? '+' : '';
+            
+            return `
+                <tr class="table-row-hover transition-colors">
+                    <td class="px-6 md:px-8 py-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl ${colorClass(typeInfo.color)} flex items-center justify-center">
+                                <iconify-icon icon="${typeInfo.icon}" class="text-xl"></iconify-icon>
+                            </div>
+                            <span class="text-sm font-bold whitespace-nowrap">${escapeHtml(typeInfo.label)}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5">
+                        <p class="text-sm font-bold text-white">${escapeHtml(t.description || t.lot_title || '—')}</p>
+                        <p class="text-[10px] text-gray-500 uppercase font-medium">ID: TRX-${String(Number(t.id) || 0).padStart(7, '0')}</p>
+                    </td>
+                    <td class="px-6 py-5">
+                        <span class="font-mono font-bold ${amountColor} text-base whitespace-nowrap">${sign}${Number(t.amount).toLocaleString()} <span class="text-xs">AMD</span></span>
+                    </td>
+                    <td class="px-6 py-5">
+                        <span class="status-badge ${colorClass(statusInfo.color)}">
+                            <iconify-icon icon="${statusInfo.icon}"></iconify-icon>${escapeHtml(statusInfo.label)}
+                        </span>
+                    </td>
+                    <td class="px-6 md:px-8 py-5 text-right text-sm font-medium text-gray-500 whitespace-nowrap">${escapeHtml(date.toLocaleDateString('ru-RU'))}, ${escapeHtml(date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}))}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('bg-[var(--gold)]', 'text-black');
+                b.classList.add('border', 'border-white/10');
+            });
+            btn.classList.add('bg-[var(--gold)]', 'text-black');
+            btn.classList.remove('border', 'border-white/10');
+            render();
+        });
+    });
+    
+    document.getElementById('searchInput').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        render();
+    });
+    
+    fetch('/api/wallet/transactions').then(r => r.json()).then(data => {
+        allTx = Array.isArray(data) ? data : [];
+        render();
+    }).catch(() => {
+        document.getElementById('txTableBody').innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-gray-500">Ошибка загрузки</td></tr>';
+    });
+</script>
+</body>
+</html>

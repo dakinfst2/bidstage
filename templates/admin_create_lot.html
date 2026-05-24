@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ — Создание лота | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        :root { --gold: #D4AF37; --dark-bg: #0F0F0F; --surface: #1A1A1A; --gold-glow: rgba(212, 175, 55, 0.2); }
+        body { font-family: 'Satoshi', sans-serif; background-color: var(--dark-bg); color: #EDEDED; margin: 0; padding: 0; }
+        .font-cabinet { font-family: 'Cabinet Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .input-focus:focus { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); outline: none; }
+        .gold-btn { background-color: var(--gold); color: #000; transition: all 0.3s ease; }
+        .gold-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 10px 20px -5px var(--gold-glow); }
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
+        .custom-checkbox { accent-color: var(--gold); }
+        .preview-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.05); overflow: hidden; border-radius: 24px; position: sticky; top: 100px; }
+    </style>
+</head>
+<body>
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 h-20 glass px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center gap-6 lg:gap-12">
+            <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2 font-cabinet">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>
+                Encore <span class="text-[10px] bg-[var(--gold)] text-black px-2 py-0.5 rounded ml-2 font-black tracking-widest">ADMIN</span>
+            </a>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="adminName" class="hidden md:block text-xs font-bold text-white">Admin</span>
+            <button id="logoutBtn" class="text-xs font-bold text-gray-500 hover:text-red-500 transition-colors uppercase tracking-widest">Выход</button>
+        </div>
+    </header>
+
+    <main class="flex-1 pt-28 md:pt-32 pb-20 max-w-7xl mx-auto px-4 md:px-8 w-full">
+        <div class="flex items-center gap-3 mb-8 md:mb-10">
+            <div class="w-12 h-12 bg-[var(--gold)]/10 text-[var(--gold)] rounded-2xl flex items-center justify-center text-2xl">
+                <iconify-icon icon="lucide:plus-circle"></iconify-icon>
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-4xl font-black text-white font-cabinet uppercase tracking-tight">Создание нового лота</h1>
+                <p class="text-gray-500 font-medium text-sm md:text-base">Заполните данные для публикации аукциона</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <!-- Form -->
+            <div class="lg:col-span-7">
+                <form id="createLotForm" class="bg-[var(--surface)] rounded-[32px] p-6 md:p-8 border border-white/5 space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Название лота</label>
+                        <div class="relative">
+                            <iconify-icon icon="lucide:type" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                            <input id="title" type="text" required placeholder="50 CENT: The Final Lap Tour" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Изображение лота</label>
+                        <div id="dropZone" class="border-2 border-dashed border-[var(--gold)]/30 bg-[var(--gold)]/[0.02] rounded-[32px] p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[var(--gold)] hover:bg-[var(--gold)]/5 transition-all group">
+                            <iconify-icon icon="lucide:image-plus" class="text-5xl text-[var(--gold)]/40 group-hover:text-[var(--gold)] transition-colors mb-4"></iconify-icon>
+                            <p class="text-sm font-bold text-white">Перетащите файл или нажмите для выбора</p>
+                            <p class="text-[10px] text-gray-500 uppercase mt-2 font-bold tracking-widest">JPG, PNG до 5MB (16:9)</p>
+                            <img id="dropPreview" class="hidden mt-4 max-h-40 rounded-xl object-cover" alt="Preview">
+                            <input id="fileInput" type="file" accept="image/*" class="hidden">
+                        </div>
+                        <p class="text-[10px] text-gray-600 ml-1">Или вставьте URL изображения:</p>
+                        <div class="relative">
+                            <iconify-icon icon="lucide:link" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                            <input id="image_url" type="url" placeholder="https://images.unsplash.com/..." class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Место проведения</label>
+                        <div class="relative">
+                            <iconify-icon icon="lucide:map-pin" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                            <input id="venue" type="text" required placeholder="СКК им. Карена Демирчяна, Ереван" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Дата мероприятия</label>
+                        <div class="relative">
+                            <iconify-icon icon="lucide:calendar" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                            <input id="date" type="text" required placeholder="18 августа 2024" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Дата окончания торгов</label>
+                            <input id="end_date" type="date" required class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 px-6 text-white input-focus font-medium transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Время окончания</label>
+                            <input id="end_time" type="time" required class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 px-6 text-white input-focus font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Начальная цена (AMD)</label>
+                            <div class="relative">
+                                <iconify-icon icon="lucide:banknote" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                                <input id="start_price" type="number" required placeholder="1" value="1" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-mono font-bold transition-all">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Мин. шаг ставки (AMD)</label>
+                            <div class="relative">
+                                <iconify-icon icon="lucide:trending-up" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                                <input id="bid_step" type="number" required placeholder="5000" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-mono font-bold transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Теги (через запятую)</label>
+                        <input id="tags" type="text" placeholder="VIP Пакет, Meet & Greet" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 px-6 text-white input-focus font-medium transition-all">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Сектор / Ряд / Место</label>
+                        <div class="relative">
+                            <iconify-icon icon="lucide:armchair" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                            <input id="seat_info" type="text" placeholder="VIP Box 15, Seat 1-2" class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 md:py-4 pl-12 pr-4 text-white input-focus font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500">Описание лота</label>
+                        <textarea id="description" rows="5" required placeholder="Опишите преимущества VIP пакета..." class="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-white input-focus font-medium transition-all resize-none"></textarea>
+                    </div>
+
+                    <div class="flex flex-col gap-4 py-4">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input id="is_featured" type="checkbox" class="custom-checkbox w-5 h-5 rounded border-white/10">
+                            <span class="text-sm text-gray-400">Сделать featured-лотом (отображается на главной)</span>
+                        </label>
+                    </div>
+
+                    <div id="errorMsg" class="hidden bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-500 text-sm"></div>
+                    <div id="successMsg" class="hidden bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-green-500 text-sm"></div>
+
+                    <div class="flex flex-col md:flex-row gap-4 pt-4">
+                        <button type="submit" class="flex-1 gold-btn py-4 md:py-5 rounded-2xl font-black font-cabinet uppercase tracking-widest text-base md:text-lg">Опубликовать</button>
+                        <button type="button" id="saveDraftBtn" class="flex-1 bg-white/5 border border-white/10 text-white py-4 md:py-5 rounded-2xl font-black font-cabinet uppercase tracking-widest text-base md:text-lg hover:bg-white/10 transition-all">Сохранить черновик</button>
+                        <a href="/" class="flex-1 bg-transparent border border-red-500/20 text-red-500 py-4 md:py-5 rounded-2xl font-black font-cabinet uppercase tracking-widest text-base md:text-lg hover:bg-red-500/10 transition-all text-center">Отмена</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview -->
+            <aside class="lg:col-span-5">
+                <div class="preview-card">
+                    <div class="p-6 border-b border-white/5 bg-white/[0.02]">
+                        <h3 class="text-sm font-bold uppercase tracking-[0.2em] text-white flex items-center gap-2">
+                            <iconify-icon icon="lucide:eye" class="text-[var(--gold)]"></iconify-icon> Предпросмотр
+                        </h3>
+                    </div>
+                    <div class="relative h-48 md:h-64 bg-black/40 flex items-center justify-center overflow-hidden">
+                        <img id="previewImg" src="" class="hidden w-full h-full object-cover">
+                        <iconify-icon id="previewPlaceholder" icon="lucide:image" class="text-6xl text-white/10"></iconify-icon>
+                    </div>
+                    <div class="p-6 md:p-8 space-y-6">
+                        <div class="space-y-2">
+                            <h2 id="previewTitle" class="text-2xl md:text-3xl font-black text-white font-cabinet uppercase leading-tight">Название лота</h2>
+                            <p class="text-gray-400 text-sm flex items-center gap-2">
+                                <iconify-icon icon="lucide:map-pin" class="text-[var(--gold)]"></iconify-icon>
+                                <span id="previewVenue">Место проведения</span>
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 py-6 border-y border-white/5">
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Начальная ставка</p>
+                                <p class="text-xl md:text-2xl font-black text-white font-mono"><span id="previewPrice">0</span> <span class="text-xs text-gray-500">AMD</span></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Мин. шаг</p>
+                                <p class="text-xl md:text-2xl font-black text-[var(--gold)] font-mono">+<span id="previewStep">0</span></p>
+                            </div>
+                        </div>
+                        <p id="previewDescription" class="text-xs text-gray-500 leading-relaxed line-clamp-3 italic">Описание появится здесь...</p>
+                    </div>
+                </div>
+
+                <div class="bg-blue-500/10 border border-blue-500/20 p-6 rounded-[24px] flex gap-4 mt-6">
+                    <iconify-icon icon="lucide:lightbulb" class="text-blue-400 text-2xl flex-shrink-0"></iconify-icon>
+                    <div>
+                        <p class="text-sm text-blue-200 font-bold mb-1">Совет</p>
+                        <p class="text-xs text-blue-200/60 leading-relaxed">Используйте URL изображения с разрешением 1920×1080+ для качественного отображения в hero-секции.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="bg-black py-10 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center text-[10px] text-gray-600 font-bold uppercase tracking-widest">
+            <p>© 2026 Encore Admin</p>
+            <a href="/" class="hover:text-white">К сайту</a>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // Live preview
+    function updatePreview() {
+        document.getElementById('previewTitle').textContent = document.getElementById('title').value || 'Название лота';
+        document.getElementById('previewVenue').textContent = document.getElementById('venue').value || 'Место проведения';
+        document.getElementById('previewPrice').textContent = (parseInt(document.getElementById('start_price').value) || 0).toLocaleString();
+        document.getElementById('previewStep').textContent = (parseInt(document.getElementById('bid_step').value) || 0).toLocaleString();
+        document.getElementById('previewDescription').textContent = document.getElementById('description').value || 'Описание появится здесь...';
+        
+        const imgUrl = document.getElementById('image_url').value;
+        const img = document.getElementById('previewImg');
+        const placeholder = document.getElementById('previewPlaceholder');
+        if (imgUrl) {
+            img.src = imgUrl;
+            img.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    }
+    
+    ['title', 'venue', 'start_price', 'bid_step', 'description', 'image_url'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePreview);
+    });
+    
+    // Submit
+    document.getElementById('createLotForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const errorDiv = document.getElementById('errorMsg');
+        const successDiv = document.getElementById('successMsg');
+        errorDiv.classList.add('hidden');
+        successDiv.classList.add('hidden');
+        
+        const endDate = document.getElementById('end_date').value;
+        const endTime = document.getElementById('end_time').value;
+        const endIso = `${endDate}T${endTime}:00`;
+        
+        const data = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            image_url: document.getElementById('image_url').value,
+            venue: document.getElementById('venue').value,
+            date: document.getElementById('date').value,
+            start_price: parseInt(document.getElementById('start_price').value),
+            bid_step: parseInt(document.getElementById('bid_step').value),
+            end_time: endIso,
+            is_featured: document.getElementById('is_featured').checked,
+            tags: document.getElementById('tags').value
+        };
+        
+        try {
+            const r = await fetch('/api/admin/lots', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await r.json();
+            
+            if (r.ok) {
+                successDiv.textContent = `Лот создан! ID: ${result.lot.id}`;
+                successDiv.classList.remove('hidden');
+                setTimeout(() => {
+                    window.location.href = `/lot/${result.lot.id}`;
+                }, 1500);
+            } else {
+                errorDiv.textContent = result.error;
+                errorDiv.classList.remove('hidden');
+            }
+        } catch (err) {
+            errorDiv.textContent = 'Ошибка при создании лота';
+            errorDiv.classList.remove('hidden');
+        }
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/';
+    });
+    
+    // Load admin name
+    fetch('/api/me').then(r => r.json()).then(u => {
+        document.getElementById('adminName').textContent = u.username;
+    });
+    
+    // Drag and Drop
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const dropPreview = document.getElementById('dropPreview');
+    
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-[var(--gold)]', 'bg-[var(--gold)]/10');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-[var(--gold)]', 'bg-[var(--gold)]/10');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-[var(--gold)]', 'bg-[var(--gold)]/10');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            handleImageFile(file);
+        }
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleImageFile(file);
+    });
+    
+    function handleImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            dropPreview.src = dataUrl;
+            dropPreview.classList.remove('hidden');
+            // Для демо используем data URL как image_url
+            // В продакшене здесь был бы upload на сервер
+            document.getElementById('image_url').value = dataUrl;
+            updatePreview();
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+</body>
+</html>

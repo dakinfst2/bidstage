@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --dark-bg: #0F0F0F;
+            --surface: #1A1A1A;
+            --gold-glow: rgba(212, 175, 55, 0.2);
+        }
+        body {
+            font-family: 'Satoshi', sans-serif;
+            background-color: var(--dark-bg);
+            color: #EDEDED;
+            margin: 0;
+            padding: 0;
+        }
+        .cabinet-font {
+            font-family: 'Cabinet Grotesk', sans-serif;
+        }
+        .gold-button {
+            background-color: var(--gold);
+            color: #000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .gold-button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -5px var(--gold-glow);
+        }
+        .gold-button:active {
+            transform: translateY(0);
+        }
+        .input-field {
+            background-color: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold);
+            outline: none;
+        }
+        .glass-card {
+            background: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in {
+            animation: slide-up 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
+        <!-- Decorative Background Glow -->
+        <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[var(--gold)]/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-[var(--gold)]/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <!-- Logo -->
+        <div class="mb-10 animate-in opacity-0 flex flex-col items-center gap-2" style="animation-delay: 0.1s;">
+            <a href="/" class="flex items-center gap-2 text-3xl font-bold tracking-tighter text-white cabinet-font">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)] text-4xl"></iconify-icon>Encore
+            </a>
+            <p class="text-xs md:text-sm text-gray-500 font-medium tracking-wide text-center max-w-xs">Лучшие места достаются тем, кто хочет сильнее</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="w-full max-w-xl glass-card rounded-[40px] p-8 md:p-12 animate-in opacity-0" style="animation-delay: 0.2s;">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-extrabold text-white cabinet-font mb-3 uppercase tracking-tight">Добро пожаловать</h1>
+                <p class="text-gray-500">Войдите в свой аккаунт чтобы делать ставки</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <!-- Username -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-400 ml-1 uppercase tracking-widest">Имя пользователя</label>
+                    <div class="relative group">
+                        <iconify-icon icon="lucide:user" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--gold)] transition-colors text-xl"></iconify-icon>
+                        <input type="text" id="username" required class="w-full input-field rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 font-medium" placeholder="Ваш логин">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-400 ml-1 uppercase tracking-widest">Пароль</label>
+                    <div class="relative group">
+                        <iconify-icon icon="lucide:lock" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--gold)] transition-colors text-xl"></iconify-icon>
+                        <input type="password" id="password" required placeholder="••••••••" class="w-full input-field rounded-2xl py-4 pl-12 pr-12 text-white placeholder:text-gray-600 font-medium">
+                        <button type="button" id="togglePassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                            <iconify-icon icon="lucide:eye" class="text-xl"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-red-500 text-sm flex items-center gap-2">
+                    <iconify-icon icon="lucide:alert-circle"></iconify-icon>
+                    <span id="errorText"></span>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="w-full gold-button py-5 rounded-2xl text-lg font-black uppercase tracking-widest mt-4 shadow-lg">
+                    Войти
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="relative flex items-center justify-center my-10">
+                <div class="w-full h-px bg-white/10"></div>
+                <span class="absolute bg-[var(--surface)] px-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Или через</span>
+            </div>
+
+            <!-- Social Logins -->
+            <div class="grid grid-cols-2 gap-4">
+                <button class="flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all font-bold text-sm">
+                    <iconify-icon icon="logos:google-icon" class="text-lg"></iconify-icon>Google
+                </button>
+                <button class="flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all font-bold text-sm">
+                    <iconify-icon icon="logos:facebook" class="text-lg"></iconify-icon>Facebook
+                </button>
+            </div>
+
+            <!-- Register Link -->
+            <div class="mt-10 text-center">
+                <p class="text-gray-500 font-medium">Нет аккаунта? <a href="/register" class="text-[var(--gold)] font-bold hover:underline ml-1 uppercase tracking-tight">Зарегистрироваться</a></p>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-12 text-center text-gray-600 text-[10px] uppercase font-bold tracking-[0.2em] animate-in opacity-0" style="animation-delay: 0.3s;">
+            © 2026 Encore Armenia • Все права защищены
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', () => {
+            const passwordInput = document.getElementById('password');
+            const icon = document.querySelector('#togglePassword iconify-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.setAttribute('icon', 'lucide:eye-off');
+            } else {
+                passwordInput.type = 'password';
+                icon.setAttribute('icon', 'lucide:eye');
+            }
+        });
+        
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    errorText.textContent = data.error;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorText.textContent = 'Ошибка при входе. Попробуйте позже.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

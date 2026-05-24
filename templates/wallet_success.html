@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платёж успешен | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&f[]=jet-brains-mono@400,700&display=swap" rel="stylesheet">
+    <style>
+        :root { --success: #10B981; --gold: #D4AF37; --dark: #0F0F0F; }
+        body { font-family: 'Satoshi', sans-serif; background: var(--dark); color: #EDEDED; margin: 0; }
+        .font-cabinet { font-family: 'Cabinet Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @keyframes check-reveal { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        .animate-check { animation: check-reveal 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+        .glass-card { background: rgba(26,26,26,0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-500/5 rounded-full blur-[120px]"></div>
+</div>
+
+<div class="relative z-10 w-full max-w-2xl text-center">
+    <div class="w-32 h-32 mx-auto bg-green-500/10 border-2 border-[var(--success)] rounded-full flex items-center justify-center mb-10 animate-check shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+        <iconify-icon icon="lucide:check" class="text-7xl text-[var(--success)]"></iconify-icon>
+    </div>
+
+    <h1 class="text-3xl md:text-5xl font-cabinet font-black uppercase tracking-tight mb-4">Баланс пополнен!</h1>
+    <p class="text-gray-400 text-lg mb-10">Средства зачислены на ваш счёт Encore</p>
+
+    <div class="glass-card rounded-[40px] p-8 md:p-10 space-y-6 mb-8">
+        <div class="flex justify-between items-center">
+            <span class="text-gray-500 font-medium">Сумма пополнения</span>
+            <span class="font-mono font-bold text-2xl text-[var(--success)]">+ <span id="amountTxt">0</span> AMD</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-gray-500 font-medium">Способ оплаты</span>
+            <span class="font-bold text-white" id="methodTxt">—</span>
+        </div>
+        <div class="h-px bg-white/10"></div>
+        <div class="flex justify-between items-end">
+            <span class="text-xs font-black uppercase tracking-widest text-gray-500">Текущий баланс</span>
+            <span class="text-3xl md:text-4xl font-mono font-black text-[var(--gold)]"><span id="balanceTxt">0</span> AMD</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a id="primaryBtn" href="/" class="px-8 py-4 bg-[var(--gold)] text-black rounded-2xl font-cabinet font-black uppercase tracking-widest text-sm hover:brightness-110 transition-all">К аукционам</a>
+        <a href="/profile" class="px-8 py-4 border border-white/10 text-white rounded-2xl font-bold uppercase tracking-widest text-sm hover:bg-white/5 transition-all">В профиль</a>
+    </div>
+
+    <div class="flex items-center justify-center gap-2 mt-8 text-gray-500 text-xs">
+        <iconify-icon icon="lucide:shield-check" class="text-[var(--success)]"></iconify-icon>
+        <span>Безопасный платёж • Secure SSL</span>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='security.js') }}"></script>
+<script>
+    const amount = parseInt(sessionStorage.getItem('last_tx_amount') || '0');
+    const method = sessionStorage.getItem('last_tx_method') || '—';
+    document.getElementById('amountTxt').textContent = amount.toLocaleString();
+    document.getElementById('methodTxt').textContent = method;
+
+    fetch('/api/wallet/balance').then(r => r.json()).then(d => {
+        document.getElementById('balanceTxt').textContent = (d.balance || 0).toLocaleString();
+    });
+
+    // Если пользователь пришёл на пополнение из конкретной страницы (например,
+    // /winner/<order_id>) — возвращаем его туда. Защита от open redirect:
+    // safeNextUrl пропускает только относительные внутренние пути.
+    const nextRaw = sessionStorage.getItem('topup_next') || '';
+    const nextSafe = window.safeNextUrl(nextRaw);
+    if (nextSafe) {
+        const btn = document.getElementById('primaryBtn');
+        btn.setAttribute('href', nextSafe);
+        btn.textContent = 'Вернуться к оплате';
+        btn.addEventListener('click', () => {
+            sessionStorage.removeItem('topup_next');
+        });
+    } else if (nextRaw) {
+        sessionStorage.removeItem('topup_next');
+    }
+</script>
+</body>
+</html>

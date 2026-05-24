@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lot.title }} | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        :root{--gold: #D4AF37;--dark-bg: #0F0F0F;--surface: #1A1A1A;}
+        body{font-family: 'Satoshi', sans-serif;background-color: var(--dark-bg);color: #EDEDED;margin:0;padding:0;scroll-behavior: smooth;}
+        h1, h2, h3, h4{font-family: 'Cabinet Grotesk', sans-serif;}
+        .glass{background: rgba(26, 26, 26, 0.8);backdrop-filter: blur(12px);border: 1px solid rgba(255, 255, 255, 0.05);}
+        .timer-font{font-family: 'JetBrains Mono', monospace;}
+        .gold-glow{box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);}
+        .urgent-glow{box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);animation: pulse-red 2s infinite;}
+        @keyframes pulse-red{0% {box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);}50% {box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);}100% {box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);}}
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-50 glass h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+            <div class="flex items-center gap-6 lg:gap-12">
+                <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                </a>
+                <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    <a href="/" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                    <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                    <a href="/faq" class="hover:text-[var(--gold)] transition-colors">FAQ</a>
+                    <a href="/my-tickets" class="hover:text-[var(--gold)] transition-colors text-nowrap">Мои билеты</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4 lg:gap-8">
+                <div class="relative hidden md:block">
+                    <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                    <input type="text" placeholder="Поиск концертов..." class="bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--gold)]/50 w-48 lg:w-64 text-white">
+                </div>
+                <div class="hidden md:flex items-center gap-3 lg:gap-5">
+                    <button id="nav-login" class="text-sm font-bold hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Вход</button>
+                    <button id="nav-signup" class="bg-[var(--gold)] text-black px-5 lg:px-7 py-2.5 rounded-full text-sm font-extrabold uppercase tracking-widest gold-glow transition-all active:scale-95">Регистрация</button>
+                </div>
+                <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col">
+            <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+                <a href="/" class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                </a>
+                <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+            <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+                <a href="/" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Аукционы</a>
+                <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Как это работает</a>
+                <a href="/faq" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">FAQ</a>
+                <a href="/profile" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Профиль</a>
+                <a href="/my-tickets" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Мои билеты</a>
+                <div class="h-px w-32 bg-white/10"></div>
+                <a href="/login" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest text-lg">Вход</a>
+                <a href="/register" class="bg-[var(--gold)] text-black px-8 py-3 rounded-full text-lg font-bold">Регистрация</a>
+            </nav>
+        </div>
+
+        <main class="flex-1 pt-20">
+            <!-- Hero Section -->
+            <section class="relative h-[600px] lg:h-[750px] overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-[var(--dark-bg)] via-[var(--dark-bg)]/30 to-transparent z-10"></div>
+                <img src="{{ lot.image_url }}" alt="{{ lot.title }}" onerror="this.onerror=null;this.src='/static/img/lots/placeholder.jpg'" class="absolute inset-0 w-full h-full object-cover">
+                <div class="relative z-20 h-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col justify-end pb-8 md:pb-12">
+                    <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                        {% if lot.status == 'finalized' %}
+                        <span class="bg-gray-500 text-white px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-1.5">
+                            <iconify-icon icon="lucide:lock"></iconify-icon> Аукцион закрыт
+                        </span>
+                        {% else %}
+                        <span class="bg-[var(--gold)] text-black px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest">Активный лот</span>
+                        {% endif %}
+                        {% if lot.retry_count == 2 and lot.status != 'finalized' %}
+                        <span class="bg-red-600 text-white px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 animate-pulse">
+                            <iconify-icon icon="lucide:flame"></iconify-icon> Последний шанс
+                        </span>
+                        {% elif lot.retry_count == 1 and lot.status != 'finalized' %}
+                        <span class="bg-orange-500 text-white px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-1.5">
+                            <iconify-icon icon="lucide:rotate-ccw"></iconify-icon> Повторный аукцион
+                        </span>
+                        {% endif %}
+                        {% for tag in lot.tags.split(',') if lot.tags %}
+                        <span class="bg-white/10 backdrop-blur-md text-white px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-white/10">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    <h1 class="text-4xl md:text-6xl lg:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-3 md:mb-4 uppercase">{{ lot.title }}</h1>
+                    <div class="flex flex-wrap items-center gap-3 md:gap-6 text-gray-300 text-sm md:text-lg">
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="lucide:map-pin" class="text-[var(--gold)]"></iconify-icon>{{ lot.venue }}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="lucide:calendar" class="text-[var(--gold)]"></iconify-icon>{{ lot.date }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Content Section -->
+            <section class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
+                <div class="flex flex-col lg:flex-row gap-8 md:gap-12">
+                    <!-- Left Column -->
+                    <div class="lg:w-[65%] space-y-12">
+                        <!-- Description -->
+                        <div class="bg-[var(--surface)] p-8 rounded-3xl border border-white/5 space-y-6">
+                            <h2 class="text-3xl font-bold text-white">Описание лота</h2>
+                            <p class="text-gray-400 text-lg leading-relaxed">{{ lot.description }}</p>
+                            
+                            <!-- Features Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                                <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                    <iconify-icon icon="lucide:star" class="text-[var(--gold)] text-2xl mt-1"></iconify-icon>
+                                    <div>
+                                        <h4 class="font-bold text-white">VIP Фан-зона</h4>
+                                        <p class="text-sm text-gray-500">Места непосредственно перед сценой</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                    <iconify-icon icon="lucide:users" class="text-[var(--gold)] text-2xl mt-1"></iconify-icon>
+                                    <div>
+                                        <h4 class="font-bold text-white">За кулисы</h4>
+                                        <p class="text-sm text-gray-500">Meet & Greet + фото с артистом</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                    <iconify-icon icon="lucide:glass-water" class="text-[var(--gold)] text-2xl mt-1"></iconify-icon>
+                                    <div>
+                                        <h4 class="font-bold text-white">Unlimited Bar</h4>
+                                        <p class="text-sm text-gray-500">Безлимитный доступ в VIP-лаундж</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                    <iconify-icon icon="lucide:car" class="text-[var(--gold)] text-2xl mt-1"></iconify-icon>
+                                    <div>
+                                        <h4 class="font-bold text-white">Трансфер</h4>
+                                        <p class="text-sm text-gray-500">Премиальный трансфер до места</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bid History -->
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-3xl font-bold text-white">История ставок</h2>
+                                <a href="/lot/{{ lot.id }}/history" class="text-[var(--gold)] font-bold text-sm uppercase tracking-widest hover:underline">Полная история</a>
+                            </div>
+                            <div class="bg-[var(--surface)] rounded-3xl border border-white/5 overflow-hidden">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-white/5">
+                                        <tr class="text-[10px] uppercase font-bold tracking-widest text-gray-500 border-b border-white/5">
+                                            <th class="px-6 py-4">Участник</th>
+                                            <th class="px-6 py-4">Время</th>
+                                            <th class="px-6 py-4 text-right">Ставка</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm" id="bidHistoryTable">
+                                        <tr class="border-b border-white/5">
+                                            <td colspan="3" class="px-6 py-4 text-center text-gray-500">Загрузка...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column (Sidebar) -->
+                    <aside class="lg:w-[35%] space-y-6">
+                        <div class="sticky top-24">
+                            <!-- Timer -->
+                            <div class="bg-red-500/10 border border-red-500/30 rounded-3xl p-6 mb-6 urgent-glow">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-xs font-bold text-red-500 uppercase tracking-widest">Торги завершаются</span>
+                                    <iconify-icon icon="lucide:timer" class="text-red-500 text-xl animate-pulse"></iconify-icon>
+                                </div>
+                                <div class="text-center">
+                                    <p class="timer-font text-5xl font-black text-white tracking-tighter" id="lotTimer">00:00:00</p>
+                                    <p class="text-[10px] text-gray-500 uppercase mt-2 font-bold">часы : минуты : секунды</p>
+                                </div>
+                            </div>
+
+                            <!-- Bid Form -->
+                            <div class="bg-[var(--surface)] border border-white/5 rounded-3xl p-8 space-y-8 gold-glow">
+                                <div class="space-y-2">
+                                    <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Текущая цена</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <h3 class="text-5xl font-black text-white font-['Cabinet_Grotesk']" id="currentPrice">{{ lot.current_price }}</h3>
+                                        <span class="text-xl font-medium text-[var(--gold)]">AMD</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="p-6 bg-white/5 rounded-2xl border border-white/5 space-y-4">
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span class="text-gray-400">Минимальный шаг:</span>
+                                            <span class="text-white font-bold">+{{ lot.bid_step }} AMD</span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span class="text-gray-400">Участников:</span>
+                                            <span class="text-white font-bold" id="participantsCount">0 человек</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Share Section -->
+                                    <div id="shareSection" class="bg-[var(--gold)]/10 border border-[var(--gold)]/30 rounded-2xl p-6">
+                                        <div class="flex items-start gap-4 mb-4">
+                                            <div class="w-10 h-10 bg-[var(--gold)] text-black rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                                                <iconify-icon icon="lucide:share-2"></iconify-icon>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <h4 class="text-white font-bold">Шаг 1: Поделитесь лотом</h4>
+                                                <p class="text-xs text-gray-400">Чтобы ваша ставка была принята, поделитесь информацией о лоте.</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <button id="shareInstagramBtn" data-platform="instagram" class="share-btn flex-1 bg-white/10 hover:bg-white/20 transition-colors py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold">
+                                                <iconify-icon icon="mdi:instagram" class="text-lg"></iconify-icon> Instagram
+                                            </button>
+                                            <button id="shareFacebookBtn" data-platform="facebook" class="share-btn flex-1 bg-white/10 hover:bg-white/20 transition-colors py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold">
+                                                <iconify-icon icon="mdi:facebook" class="text-lg"></iconify-icon> Facebook
+                                            </button>
+                                        </div>
+                                        <div id="shareVerified" class="hidden mt-4 flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
+                                            <iconify-icon icon="lucide:check-circle" class="text-green-500"></iconify-icon>
+                                            <span class="text-xs text-green-500 font-bold">Проверка пройдена! Вы можете ставить.</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bid Input -->
+                                <div class="space-y-4">
+                                    <div class="relative">
+                                        <input type="number" id="bidAmount" value="{{ lot.current_price + lot.bid_step }}" min="{{ lot.current_price + lot.bid_step }}" class="w-full bg-black/50 border border-white/10 rounded-2xl py-5 px-6 text-2xl font-black text-white focus:outline-none focus:border-[var(--gold)] transition-all">
+                                        <div class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 font-bold">AMD</div>
+                                    </div>
+                                    <button id="submitBidBtn" class="w-full bg-[var(--gold)] text-black py-5 rounded-2xl text-xl font-black hover:scale-[1.02] active:scale-95 transition-all gold-glow">
+                                        СДЕЛАТЬ СТАВКУ
+                                    </button>
+                                    <button id="finishAuctionBtn" class="w-full bg-white/5 border border-white/10 text-white py-3 rounded-2xl text-sm font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+                                        <iconify-icon icon="mdi:crown"></iconify-icon> Завершить аукцион (демо)
+                                    </button>
+                                    <p class="text-center text-[10px] text-gray-600 uppercase font-bold tracking-widest">Нажимая кнопку, вы соглашаетесь с правилами аукциона</p>
+                                    <div id="bidSuccess" class="hidden mt-4 flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
+                                        <iconify-icon icon="lucide:check-circle" class="text-green-500"></iconify-icon>
+                                        <span class="text-xs text-green-500 font-bold">Ставка успешно принята!</span>
+                                    </div>
+                                    <div id="bidError" class="hidden mt-4 flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
+                                        <iconify-icon icon="lucide:alert-circle" class="text-red-500"></iconify-icon>
+                                        <span class="text-xs text-red-500 font-bold" id="bidErrorText"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <!-- Similar Auctions -->
+            <section class="max-w-7xl mx-auto px-8 py-24 border-t border-white/5">
+                <div class="flex items-center justify-between mb-12">
+                    <h2 class="text-4xl font-bold text-white tracking-tight">Похожие аукционы</h2>
+                    <a href="/" class="text-[var(--gold)] font-bold text-sm uppercase tracking-widest hover:underline">Смотреть все</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="similarLots">
+                    <!-- Загружается динамически -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-black pt-32 pb-12 border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+                <div class="col-span-1 md:col-span-2 space-y-10">
+                    <a href="/" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
+                        <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+                    </a>
+                    <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Премьерный пункт назначения для аукционов билетов на концерты в Армении.</p>
+                    <div class="flex items-center gap-5">
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:instagram"></iconify-icon></a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:facebook"></iconify-icon></a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:twitter"></iconify-icon></a>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors"><a href="/">Просмотреть лоты</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/#how-it-works">Как это работает</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/faq">FAQ</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/my-tickets">Мои билеты</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/profile">Профиль</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors"><a href="/terms">Условия использования</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/privacy">Политика конфиденциальности</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/rules">Правила аукциона</a></li>
+                        <li class="hover:text-white transition-colors"><a href="/guarantee">Гарантия билета</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+                <p>© 2026 Encore Армения. Все права защищены.</p>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                    <p>Support: +374 10 55 55 55</p>
+                    <p>Yerevan, Republic Square 1</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Share Verification Modal -->
+    <div id="shareModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <div class="relative w-full max-w-[540px] bg-[#0F0F0F] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl">
+            <div class="p-8 flex flex-col items-center">
+                <div class="w-full flex justify-end mb-2">
+                    <button id="closeShareModal" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                        <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+                    </button>
+                </div>
+                <div class="mb-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 mb-6">
+                        <iconify-icon icon="lucide:share-2" class="text-[var(--gold)] text-3xl"></iconify-icon>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2 uppercase">Проверка расшаривания</h2>
+                    <p class="text-gray-500 text-sm max-w-xs mx-auto">Для участия в аукционе подтвердите публикацию лота в соцсетях</p>
+                </div>
+
+                <div class="w-full space-y-6 mb-10">
+                    <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                        <div class="w-8 h-8 rounded-full bg-[var(--gold)] text-black flex items-center justify-center font-bold text-xs flex-shrink-0">01</div>
+                        <div class="space-y-1">
+                            <p class="text-white font-bold text-sm">Опубликуйте лот</p>
+                            <p class="text-gray-500 text-xs">Выберите платформу и сделайте репост в свой профиль.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button data-platform="instagram" class="modal-share-btn flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white font-bold text-sm hover:scale-[1.02] active:scale-95 transition-all">
+                            <iconify-icon icon="mdi:instagram" class="text-xl"></iconify-icon> Instagram
+                        </button>
+                        <button data-platform="facebook" class="modal-share-btn flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-[#1877F2] text-white font-bold text-sm hover:scale-[1.02] active:scale-95 transition-all">
+                            <iconify-icon icon="mdi:facebook" class="text-xl"></iconify-icon> Facebook
+                        </button>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                        <div class="w-8 h-8 rounded-full bg-[var(--gold)] text-black flex items-center justify-center font-bold text-xs flex-shrink-0">02</div>
+                        <div class="space-y-1">
+                            <p class="text-white font-bold text-sm">Ожидайте проверки</p>
+                            <p class="text-gray-500 text-xs">Система автоматически найдёт публикацию в течение 30 секунд.</p>
+                        </div>
+                    </div>
+
+                    <div class="relative py-12 px-6 bg-black/40 rounded-3xl border border-white/5 flex flex-col items-center justify-center overflow-hidden">
+                        <div id="statusSpinner" class="relative mb-4 flex flex-col items-center justify-center">
+                            <div class="w-20 h-20 rounded-full border-4 border-[var(--gold)]/20 border-t-[var(--gold)] animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <iconify-icon icon="lucide:search" class="text-[var(--gold)] text-2xl"></iconify-icon>
+                            </div>
+                        </div>
+                        <div id="successCheck" class="hidden mb-4">
+                            <iconify-icon icon="lucide:check-circle-2" class="text-green-500 text-7xl"></iconify-icon>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[var(--gold)] font-bold text-sm mb-1 uppercase tracking-widest">Статус: <span id="checkStatus" class="text-white">В ожидании</span></p>
+                            <div class="timer-font text-4xl font-bold text-white tracking-tighter tabular-nums" id="checkTimer">00:30</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full flex flex-col items-center gap-4">
+                    <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest text-center">Нажмите на платформу выше, чтобы запустить проверку</p>
+                    <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div id="checkProgress" class="h-full bg-[var(--gold)] transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='security.js') }}"></script>
+    <script src="{{ url_for('static', filename='toast.js') }}"></script>
+    <script>
+        const lotId = {{ lot.id }};
+        const lotData = {{ lot.to_dict() | tojson }};
+        
+        // Загрузка истории ставок
+        async function loadBidHistory() {
+            try {
+                const response = await fetch(`/api/lots/${lotId}/bids`);
+                const bids = await response.json();
+                
+                const tbody = document.getElementById('bidHistoryTable');
+                if (bids.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Ставок пока нет. Будьте первым!</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = bids.slice(0, 5).map((bid, index) => {
+                    const time = new Date(bid.created_at).toLocaleTimeString('ru-RU');
+                    const isLeader = index === 0;
+                    
+                    return `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors ${isLeader ? 'text-white' : 'text-gray-400'}">
+                            <td class="px-6 py-4 flex items-center gap-2 font-medium">
+                                <span class="w-2 h-2 rounded-full ${isLeader ? 'bg-green-500' : 'bg-gray-600'}"></span> 
+                                ${escapeHtml(bid.username)}
+                                ${isLeader ? '<span class="text-[10px] bg-[var(--gold)]/10 text-[var(--gold)] px-2 py-0.5 rounded">Лидер</span>' : ''}
+                            </td>
+                            <td class="px-6 py-4 text-gray-500">${escapeHtml(time)}</td>
+                            <td class="px-6 py-4 text-right font-bold">${Number(bid.amount).toLocaleString()} AMD</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                // Обновляем количество участников
+                const uniqueUsers = new Set(bids.map(b => b.user_id)).size;
+                document.getElementById('participantsCount').textContent = `${uniqueUsers} человек`;
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+            }
+        }
+        
+        // Таймер
+        function updateTimer() {
+            const endTime = new Date(lotData.end_time + 'Z').getTime();
+            const now = Date.now();
+            const diff = endTime - now;
+            
+            if (diff <= 0) {
+                document.getElementById('lotTimer').textContent = 'Завершен';
+                // Блокируем ставки
+                const bidBtn = document.getElementById('submitBidBtn');
+                bidBtn.disabled = true;
+                bidBtn.textContent = 'АУКЦИОН ЗАВЕРШЁН';
+                bidBtn.classList.remove('bg-[var(--gold)]', 'hover:scale-[1.02]');
+                bidBtn.classList.add('bg-gray-700', 'cursor-not-allowed');
+                document.getElementById('bidAmount').disabled = true;
+                
+                // Показываем кнопку оплаты если я победитель
+                checkIfWinner();
+                return;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('lotTimer').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        
+        async function checkIfWinner() {
+            try {
+                const meR = await fetch('/api/me');
+                if (!meR.ok) return;
+                const me = await meR.json();
+                
+                const bidsR = await fetch(`/api/lots/${lotId}/bids`);
+                const bids = await bidsR.json();
+                
+                if (bids.length > 0 && bids[0].user_id === me.id) {
+                    // Я победитель — показываю кнопку оплаты
+                    const container = document.getElementById('submitBidBtn').parentElement;
+                    const payBtn = document.createElement('a');
+                    payBtn.href = '#';
+                    payBtn.className = 'block w-full text-center bg-green-500 text-white py-5 rounded-2xl text-xl font-black hover:bg-green-600 active:scale-95 transition-all mt-4';
+                    payBtn.textContent = 'ОПЛАТИТЬ БИЛЕТ';
+                    payBtn.onclick = async (e) => {
+                        e.preventDefault();
+                        const r = await fetch(`/api/lots/${lotId}/finalize`, { method: 'POST' });
+                        const data = await r.json();
+                        if (r.ok && data.order_id) {
+                            window.location.href = `/winner/${data.order_id}`;
+                        }
+                    };
+                    container.appendChild(payBtn);
+                }
+            } catch(e) {}
+        }
+        
+        // Отправка ставки
+        document.getElementById('submitBidBtn').addEventListener('click', async () => {
+            const amount = parseInt(document.getElementById('bidAmount').value);
+            const successDiv = document.getElementById('bidSuccess');
+            const errorDiv = document.getElementById('bidError');
+            const errorText = document.getElementById('bidErrorText');
+            
+            // Скрываем предыдущие сообщения
+            successDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`/api/lots/${lotId}/bid`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ amount })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Показываем успех
+                    successDiv.classList.remove('hidden');
+                    setTimeout(() => successDiv.classList.add('hidden'), 5000);
+                    
+                    // Обновляем UI
+                    document.getElementById('currentPrice').textContent = amount.toLocaleString();
+                    document.getElementById('bidAmount').value = amount + lotData.bid_step;
+                    document.getElementById('bidAmount').min = amount + lotData.bid_step;
+                    loadBidHistory();
+                } else {
+                    // Если требуется шаринг — открываем модалку
+                    if (data.need_share) {
+                        openShareModal();
+                        return;
+                    }
+                    // Если не авторизован — редирект на логин
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    // Показываем ошибку
+                    errorText.textContent = data.error;
+                    errorDiv.classList.remove('hidden');
+                    setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+                }
+            } catch (error) {
+                errorText.textContent = 'Ошибка при отправке ставки. Попробуйте позже.';
+                errorDiv.classList.remove('hidden');
+                setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+            }
+        });
+        
+        // Кнопка "Завершить аукцион" — создаёт Order и редиректит на /winner
+        document.getElementById('finishAuctionBtn').addEventListener('click', async () => {
+            const me = await fetch('/api/me');
+            if (!me.ok) {
+                window.location.href = '/login';
+                return;
+            }
+            const user = await me.json();
+            
+            // Проверяем что текущий пользователь — лидер ставок
+            try {
+                const bidsR = await fetch(`/api/lots/${lotId}/bids`);
+                const bids = await bidsR.json();
+                if (bids.length > 0 && bids[0].user_id !== user.id) {
+                    showToast('Только лидер ставок может завершить аукцион');
+                    return;
+                }
+            } catch(e) {}
+            
+            try {
+                const r = await fetch(`/api/lots/${lotId}/finalize`, { method: 'POST' });
+                const data = await r.json();
+                if (r.ok && data.order_id) {
+                    window.location.href = `/winner/${data.order_id}`;
+                } else {
+                    showToast(data.error || 'Не удалось завершить аукцион');
+                }
+            } catch (e) {
+                showToast('Ошибка завершения аукциона');
+            }
+        });
+        
+        // ===== Логика проверки расшаривания =====
+        const shareModal = document.getElementById('shareModal');
+        
+        async function checkShareStatus() {
+            try {
+                const r = await fetch(`/api/lots/${lotId}/share/status`);
+                const data = await r.json();
+                if (data.verified) {
+                    document.getElementById('shareVerified').classList.remove('hidden');
+                }
+                return data;
+            } catch (e) { return { shared: false, verified: false }; }
+        }
+        
+        function openShareModal() {
+            shareModal.classList.remove('hidden');
+            // Сброс состояния
+            document.getElementById('statusSpinner').classList.remove('hidden');
+            document.getElementById('successCheck').classList.add('hidden');
+            document.getElementById('checkStatus').textContent = 'В ожидании';
+            document.getElementById('checkTimer').textContent = '00:30';
+            document.getElementById('checkProgress').style.width = '0%';
+        }
+        
+        function closeShareModal() {
+            shareModal.classList.add('hidden');
+        }
+        
+        document.getElementById('closeShareModal').addEventListener('click', closeShareModal);
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) closeShareModal();
+        });
+        
+        // Кнопки шаринга в сайдбаре открывают модалку
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                // Проверка авторизации
+                const me = await fetch('/api/me');
+                if (!me.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
+                openShareModal();
+            });
+        });
+        
+        // Кнопки шаринга в модалке запускают проверку
+        document.querySelectorAll('.modal-share-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const platform = btn.dataset.platform;
+                
+                // Регистрируем шаринг
+                await fetch(`/api/lots/${lotId}/share`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ platform })
+                });
+                
+                // Открываем окно для шаринга в соцсеть
+                const shareText = encodeURIComponent(`Ставлю на ${document.title} #encore`);
+                const shareUrl = encodeURIComponent(window.location.href);
+                
+                if (platform === 'instagram') {
+                    // Instagram не поддерживает web share — открываем Stories deep link
+                    window.open(`https://www.instagram.com/`, '_blank');
+                } else if (platform === 'facebook') {
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}`, '_blank', 'width=600,height=400');
+                }
+                
+                // Запускаем визуальный таймер на 30 секунд
+                document.getElementById('checkStatus').textContent = 'Проверяем публикацию...';
+                let seconds = 30;
+                const interval = setInterval(() => {
+                    seconds--;
+                    document.getElementById('checkTimer').textContent = `00:${String(seconds).padStart(2, '0')}`;
+                    document.getElementById('checkProgress').style.width = `${((30 - seconds) / 30) * 100}%`;
+                    
+                    if (seconds <= 0) {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+                
+                // Пытаемся верификацию с access_token если есть, иначе демо через 5 сек
+                const verifyDelay = 5000;
+                setTimeout(async () => {
+                    clearInterval(interval);
+                    
+                    // Передаём access_token из сессии если есть (для реальной верификации через Graph API)
+                    const verifyBody = {};
+                    const r = await fetch(`/api/lots/${lotId}/share/verify`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(verifyBody)
+                    });
+                    
+                    const data = await r.json();
+                    
+                    if (r.ok && data.verified) {
+                        document.getElementById('statusSpinner').classList.add('hidden');
+                        document.getElementById('successCheck').classList.remove('hidden');
+                        document.getElementById('checkStatus').textContent = 'Подтверждено!';
+                        document.getElementById('checkTimer').textContent = '✓';
+                        document.getElementById('checkProgress').style.width = '100%';
+                        document.getElementById('shareVerified').classList.remove('hidden');
+                        
+                        setTimeout(() => closeShareModal(), 2000);
+                    } else {
+                        document.getElementById('checkStatus').textContent = data.error || 'Не найдено';
+                        document.getElementById('checkTimer').textContent = '✗';
+                        document.getElementById('checkProgress').style.width = '100%';
+                        document.getElementById('checkProgress').style.backgroundColor = '#ef4444';
+                    }
+                }, verifyDelay);
+            });
+        });
+        
+        // Загрузка похожих лотов
+        async function loadSimilarLots() {
+            try {
+                const response = await fetch('/api/lots');
+                const lots = await response.json();
+                
+                // Фильтруем текущий лот и берем первые 3
+                const similar = lots.filter(l => l.id !== lotId).slice(0, 3);
+                
+                const container = document.getElementById('similarLots');
+                container.innerHTML = similar.map(lot => {
+                    const endTime = new Date(lot.end_time);
+                    const now = new Date();
+                    const diff = endTime - now;
+                    
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    return `
+                        <div class="group bg-[var(--surface)] rounded-2xl overflow-hidden border border-white/5 hover:border-[var(--gold)]/30 transition-all">
+                            <div class="relative h-56 overflow-hidden">
+                                <img src="${escapeHtml(safeUrl(lot.image_url) || '/static/img/lots/placeholder.jpg')}" onerror="this.onerror=null;this.src='/static/img/lots/placeholder.jpg'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                                    <div class="flex items-center gap-2 text-white/90 font-bold timer-font bg-white/10 w-fit px-2 py-1 rounded text-xs">${escapeHtml(timeStr)}</div>
+                                </div>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <h3 class="text-xl font-bold text-white">${escapeHtml(lot.title)}</h3>
+                                <p class="text-sm text-gray-500">${escapeHtml(lot.venue)}</p>
+                                <div class="flex justify-between items-end pt-4 border-t border-white/5">
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Текущая ставка</p>
+                                        <p class="text-lg font-bold text-white">${Number(lot.current_price).toLocaleString()} AMD</p>
+                                    </div>
+                                    <a href="/lot/${Number(lot.id)}" class="px-4 py-2 border border-white/10 rounded-lg text-xs font-bold hover:bg-[var(--gold)] hover:text-black transition-all">Сделать ставку</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки похожих лотов:', error);
+            }
+        }
+        
+        // Инициализация
+        loadBidHistory();
+        loadSimilarLots();
+        updateTimer();
+        checkShareStatus();
+        setInterval(updateTimer, 1000);
+        setInterval(loadBidHistory, 10000);
+        
+        // Бургер-меню
+        const burgerBtn = document.getElementById('burgerBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMenu = document.getElementById('closeMobileMenu');
+        if (burgerBtn && mobileMenu) {
+            burgerBtn.addEventListener('click', () => mobileMenu.classList.remove('hidden'));
+        }
+        if (closeMenu && mobileMenu) {
+            closeMenu.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        }
+        
+        // Кнопки авторизации
+        async function setupAuthButtons() {
+            try {
+                const r = await fetch('/api/me');
+                if (r.ok) {
+                    const user = await r.json();
+                    const loginBtn = document.getElementById('nav-login');
+                    const signupBtn = document.getElementById('nav-signup');
+                    loginBtn.textContent = user.username;
+                    loginBtn.onclick = () => { window.location.href = '/profile'; };
+                    signupBtn.textContent = 'Выйти';
+                    signupBtn.onclick = async () => {
+                        await fetch('/api/logout', { method: 'POST' });
+                        window.location.reload();
+                    };
+                    return;
+                }
+            } catch (e) {}
+            document.getElementById('nav-login').addEventListener('click', () => {
+                window.location.href = '/login';
+            });
+            document.getElementById('nav-signup').addEventListener('click', () => {
+                window.location.href = '/register';
+            });
+        }
+        setupAuthButtons();
+    </script>
+    <script src="{{ url_for('static', filename='balance.js') }}"></script>
+</body>
+</html>

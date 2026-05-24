@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --dark-bg: #0F0F0F; --surface: #1A1A1A; }
+        body { font-family: 'Satoshi', sans-serif; background-color: var(--dark-bg); color: #EDEDED; margin: 0; padding: 0; }
+        h1, h2, h3 { font-family: 'Cabinet Grotesk', sans-serif; }
+        .glass { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body>
+<div class="min-h-screen flex flex-col">
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+        <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+            <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+        </a>
+        <a href="/" class="text-sm font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-widest">На главную</a>
+    </header>
+
+    <main class="flex-1 pt-32 pb-20 max-w-4xl mx-auto px-4 md:px-8 w-full">
+        <h1 class="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-8">{{ title }}</h1>
+        
+        <div class="bg-[var(--surface)] rounded-3xl border border-white/5 p-6 md:p-10 space-y-8 text-gray-400 leading-relaxed">
+            {% if content == 'terms' %}
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">1. Общие положения</h2>
+                <p>Настоящие Условия использования регулируют порядок использования платформы Encore для проведения аукционов билетов на мероприятия в Армении.</p>
+                <p>Регистрируясь на платформе, вы подтверждаете, что вам исполнилось 18 лет и вы принимаете настоящие условия в полном объёме.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">2. Участие в аукционах</h2>
+                <p>Для участия в аукционе необходимо пройти регистрацию и подтвердить публикацию лота в социальных сетях. Каждая ставка является обязательством к оплате в случае победы.</p>
+                <p>Победитель обязан произвести оплату в течение 24 часов с момента завершения аукциона. В случае неоплаты право выкупа переходит к следующему участнику.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">3. Ответственность</h2>
+                <p>Encore не несёт ответственности за отмену мероприятий организаторами. В случае отмены средства возвращаются в полном объёме в течение 5 рабочих дней.</p>
+            </section>
+
+            {% elif content == 'privacy' %}
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">1. Сбор данных</h2>
+                <p>Мы собираем минимально необходимые данные: имя пользователя, email, историю ставок. Данные банковских карт обрабатываются сертифицированным платёжным шлюзом и не хранятся на наших серверах.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">2. Использование данных</h2>
+                <p>Ваши данные используются исключительно для обеспечения работы платформы: проведение аукционов, доставка билетов, уведомления о ставках.</p>
+                <p>Мы не передаём персональные данные третьим лицам без вашего согласия, за исключением случаев, предусмотренных законодательством РА.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">3. Безопасность</h2>
+                <p>Все данные передаются по защищённому протоколу SSL. Пароли хранятся в зашифрованном виде. Мы регулярно проводим аудит безопасности.</p>
+            </section>
+
+            {% elif content == 'rules' %}
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">1. Правила ставок</h2>
+                <p>Минимальная ставка = текущая цена + минимальный шаг. Ставка не может быть отменена после подтверждения.</p>
+                <p>Если ставка сделана в последние 60 секунд аукциона, таймер автоматически продлевается на 1 минуту.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">2. Определение победителя</h2>
+                <p>Победителем признаётся участник с максимальной ставкой на момент истечения таймера. Победитель получает уведомление и 24 часа на оплату.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">3. Обязательная публикация</h2>
+                <p>Для участия в аукционе необходимо опубликовать информацию о лоте в Instagram или Facebook. Система автоматически верифицирует публикацию.</p>
+            </section>
+
+            {% elif content == 'guarantee' %}
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">1. Гарантия подлинности</h2>
+                <p>Все билеты на Encore являются подлинными и приобретаются напрямую у организаторов мероприятий. Каждый билет содержит уникальный QR-код для однократного прохода.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">2. Гарантия возврата</h2>
+                <p>В случае отмены мероприятия организатором — полный возврат средств в течение 5 рабочих дней. В случае переноса — билет остаётся действительным на новую дату.</p>
+            </section>
+            <section class="space-y-4">
+                <h2 class="text-xl font-bold text-white">3. Поддержка</h2>
+                <p>При любых проблемах с билетом обращайтесь в службу поддержки: support@concertauction.online или +374 10 55 55 55. Мы работаем 24/7.</p>
+            </section>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="bg-black py-10 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-600 text-[10px] uppercase tracking-widest font-bold">
+            <p>© 2026 Encore Армения.</p>
+            <div class="flex flex-wrap gap-4 md:gap-8">
+                <a href="/terms" class="hover:text-white">Условия</a>
+                <a href="/privacy" class="hover:text-white">Приватность</a>
+                <a href="/rules" class="hover:text-white">Правила</a>
+                <a href="/guarantee" class="hover:text-white">Гарантия</a>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

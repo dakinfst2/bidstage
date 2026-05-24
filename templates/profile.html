@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        :root { --gold: #D4AF37; --dark-bg: #0F0F0F; --surface: #1A1A1A; }
+        body { font-family: 'Satoshi', sans-serif; background-color: var(--dark-bg); color: #EDEDED; margin: 0; padding: 0; }
+        .cabinet-font { font-family: 'Cabinet Grotesk', sans-serif; }
+        .mono-font { font-family: 'JetBrains Mono', monospace; }
+        .glass-header { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .card-surface { background: var(--surface); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .tab-active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-win { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+        .status-lost { background: rgba(107, 114, 128, 0.1); color: #9CA3AF; }
+        .status-active { background: rgba(234, 179, 8, 0.1); color: #EAB308; }
+        .status-outbid { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+    </style>
+</head>
+<body>
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header h-20 px-4 md:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-6 lg:gap-12">
+            <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2 cabinet-font">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+            </a>
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                <a href="/" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                <a href="/#how-it-works" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                <a href="/faq" class="hover:text-[var(--gold)] transition-colors">FAQ</a>
+                <a href="/my-tickets" class="hover:text-[var(--gold)] transition-colors text-nowrap">Мои билеты</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4 lg:gap-8">
+            <div class="hidden md:flex items-center gap-3 lg:gap-5">
+                <a href="/profile" class="text-sm font-bold text-[var(--gold)] uppercase tracking-widest">Профиль</a>
+                <button id="logoutBtn" class="bg-[var(--gold)] text-black px-5 lg:px-7 py-2.5 rounded-full text-sm font-extrabold uppercase tracking-widest transition-all active:scale-95">Выйти</button>
+            </div>
+            <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col">
+        <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+            <a href="/" class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+            </a>
+            <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+            </button>
+        </div>
+        <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+            <a href="/" class="hover:text-[var(--gold)] uppercase tracking-widest">Аукционы</a>
+            <a href="/my-tickets" class="hover:text-[var(--gold)] uppercase tracking-widest">Мои билеты</a>
+            <a href="/faq" class="hover:text-[var(--gold)] uppercase tracking-widest">FAQ</a>
+            <button id="mobileLogoutBtn" class="text-red-500 uppercase tracking-widest">Выйти</button>
+        </nav>
+    </div>
+
+    <!-- Main -->
+    <main class="flex-1 pt-24 md:pt-32 pb-20 max-w-7xl mx-auto px-4 md:px-8 w-full">
+        <div class="flex flex-col lg:flex-row gap-6 md:gap-8">
+            <!-- Left: Profile Card -->
+            <aside class="lg:w-1/4 space-y-6">
+                <div class="card-surface rounded-[32px] p-6 md:p-8 text-center relative overflow-hidden">
+                    <div class="absolute top-4 right-4">
+                        <span class="flex items-center gap-1 text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-500/10 px-2 py-1 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online
+                        </span>
+                    </div>
+                    <div class="relative inline-block mb-6">
+                        <div id="avatar" class="w-[120px] h-[120px] rounded-full bg-gradient-to-br from-[var(--gold)] to-orange-400 flex items-center justify-center text-black font-black text-4xl border-2 border-[var(--gold)]/30">U</div>
+                    </div>
+                    <h2 id="userName" class="text-xl md:text-2xl font-bold text-white cabinet-font">User</h2>
+                    <p id="userEmail" class="text-gray-500 text-sm mb-6 md:mb-8">user@email.com</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-6 md:mb-8">
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter mb-1">Выигрыши</p>
+                            <p id="statWins" class="text-lg font-black text-white mono-font">0</p>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter mb-1">Активные</p>
+                            <p id="statActive" class="text-lg font-black text-white mono-font">0</p>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5 col-span-2">
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter mb-1">Потрачено (AMD)</p>
+                            <p id="statSpent" class="text-xl font-black text-[var(--gold)] mono-font">0</p>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5 col-span-2 flex items-center justify-between">
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">Уровень</p>
+                            <span id="statLevel" class="text-xs font-black text-[var(--gold)] uppercase tracking-widest">Standard</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button id="logoutBtnSide" class="w-full py-3 md:py-4 rounded-2xl border border-red-500/20 text-red-500 text-sm font-bold uppercase tracking-widest hover:bg-red-500/10 transition-colors">Выйти из системы</button>
+                    </div>
+                </div>
+                
+                <!-- Balance Card -->
+                <div class="card-surface rounded-[32px] p-6 md:p-8 space-y-5 border-[var(--gold)]/20" style="border-color: rgba(212,175,55,0.2)">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-[var(--gold)]/10 flex items-center justify-center text-[var(--gold)]">
+                                <iconify-icon icon="lucide:wallet" class="text-2xl"></iconify-icon>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ваш баланс</p>
+                                <p class="text-xl font-black text-white mono-font"><span id="userBalance">0</span> <span class="text-xs text-gray-400">AMD</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+                        <a href="/wallet/topup" class="text-center py-3 px-3 rounded-2xl bg-[var(--gold)] text-black font-black uppercase tracking-wider text-xs hover:brightness-110 transition-all flex items-center justify-center gap-1.5 overflow-hidden min-w-0">
+                            <iconify-icon icon="lucide:plus" class="flex-shrink-0"></iconify-icon>
+                            <span class="truncate">Пополнить</span>
+                        </a>
+                        <a href="/wallet/transactions" class="text-center py-3 px-3 rounded-2xl border border-white/10 text-white font-bold uppercase tracking-wider text-xs hover:bg-white/5 transition-all overflow-hidden min-w-0 truncate">История</a>
+                    </div>
+                </div>
+                
+                <div class="card-surface rounded-[32px] p-6 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-[var(--gold)]/10 flex items-center justify-center text-[var(--gold)]">
+                        <iconify-icon icon="lucide:help-circle" class="text-xl"></iconify-icon>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Нужна помощь?</p>
+                        <a href="/faq" class="text-[10px] text-gray-500 uppercase font-bold tracking-widest hover:text-white">Перейти в FAQ</a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right: Tabs + Content -->
+            <div class="lg:w-3/4">
+                <!-- Tabs -->
+                <div class="flex items-center gap-6 md:gap-12 border-b border-white/5 mb-8 overflow-x-auto">
+                    <button data-tab="history" class="profile-tab tab-active pb-4 text-xs md:text-sm font-bold uppercase tracking-widest whitespace-nowrap">История ставок</button>
+                    <button data-tab="wins" class="profile-tab pb-4 text-xs md:text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-white whitespace-nowrap">Выигранные лоты</button>
+                </div>
+
+                <!-- History Tab -->
+                <div id="historyTab" class="space-y-6">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/10 w-full md:w-auto overflow-x-auto">
+                            <button data-filter="all" class="history-filter active px-4 md:px-6 py-2 rounded-lg bg-[var(--gold)] text-black text-xs font-bold uppercase tracking-widest whitespace-nowrap">Все</button>
+                            <button data-filter="won" class="history-filter px-4 md:px-6 py-2 rounded-lg text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-white whitespace-nowrap">Выигранные</button>
+                            <button data-filter="active" class="history-filter px-4 md:px-6 py-2 rounded-lg text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-white whitespace-nowrap">Активные</button>
+                            <button data-filter="lost" class="history-filter px-4 md:px-6 py-2 rounded-lg text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-white whitespace-nowrap">Проигранные</button>
+                        </div>
+                        <div class="relative w-full md:w-64">
+                            <iconify-icon icon="lucide:search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                            <input id="historySearch" type="text" placeholder="Поиск..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-[var(--gold)]/50">
+                        </div>
+                    </div>
+                    
+                    <div class="card-surface rounded-[32px] overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-white/[0.02] border-b border-white/5">
+                                        <th class="px-4 md:px-8 py-5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Лот</th>
+                                        <th class="px-4 md:px-8 py-5 text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden md:table-cell">Дата</th>
+                                        <th class="px-4 md:px-8 py-5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ставка</th>
+                                        <th class="px-4 md:px-8 py-5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Статус</th>
+                                        <th class="px-4 md:px-8 py-5 text-right"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyBody" class="divide-y divide-white/5">
+                                    <tr><td colspan="5" class="px-8 py-12 text-center text-gray-500">Загрузка...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wins Tab (hidden by default) -->
+                <div id="winsTab" class="hidden space-y-4" id="winsList"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-black pt-32 pb-12 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+            <div class="col-span-1 md:col-span-2 space-y-10">
+                <a href="/" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3"><iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore</a>
+                <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Премьерный пункт назначения для аукционов билетов на концерты в Армении.</p>
+                <div class="flex items-center gap-5">
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:instagram"></iconify-icon></a>
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:facebook"></iconify-icon></a>
+                    <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1"><iconify-icon icon="mdi:twitter"></iconify-icon></a>
+                </div>
+            </div>
+            <div>
+                <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    <li class="hover:text-white transition-colors"><a href="/">Просмотреть лоты</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/#how-it-works">Как это работает</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/faq">FAQ</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/my-tickets">Мои билеты</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/profile">Профиль</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    <li class="hover:text-white transition-colors"><a href="/terms">Условия использования</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/privacy">Политика конфиденциальности</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/rules">Правила аукциона</a></li>
+                    <li class="hover:text-white transition-colors"><a href="/guarantee">Гарантия билета</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+            <p>© 2026 Encore Армения. Все права защищены.</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                <p>Support: +374 10 55 55 55</p>
+                <p>Yerevan, Republic Square 1</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script src="{{ url_for('static', filename='security.js') }}"></script>
+<script>
+    let allBids = [];
+    let allOrders = [];
+    let currentFilter = 'all';
+    
+    async function loadProfile() {
+        const me = await fetch('/api/me');
+        if (!me.ok) {
+            window.location.href = '/login';
+            return;
+        }
+        const user = await me.json();
+        
+        document.getElementById('userName').textContent = user.username;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('avatar').textContent = user.username.substring(0, 2).toUpperCase();
+        
+        // Stats
+        const stats = await (await fetch('/api/profile/stats')).json();
+        document.getElementById('statWins').textContent = stats.wins;
+        document.getElementById('statActive').textContent = stats.active_bids;
+        document.getElementById('statSpent').textContent = stats.total_spent.toLocaleString();
+        document.getElementById('statLevel').textContent = stats.level;
+        
+        // Баланс
+        document.getElementById('userBalance').textContent = (user.balance || 0).toLocaleString();
+        
+        // Bids
+        allBids = await (await fetch('/api/my-bids')).json();
+        allOrders = await (await fetch('/api/my-orders')).json();
+        
+        renderHistory();
+        renderWins();
+    }
+    
+    function renderHistory(searchQuery = '') {
+        let filtered = allBids;
+        
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(b => {
+                if (currentFilter === 'won') return b.status === 'won';
+                if (currentFilter === 'active') return b.status === 'active';
+                if (currentFilter === 'lost') return b.status === 'lost' || b.status === 'outbid';
+                return true;
+            });
+        }
+        
+        if (searchQuery) {
+            filtered = filtered.filter(b => b.lot.title.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+        
+        const tbody = document.getElementById('historyBody');
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-8 py-12 text-center text-gray-500">Нет ставок</td></tr>';
+            return;
+        }
+        
+        const statusBadges = {
+            won: '<span class="status-badge status-win">Выигран</span>',
+            active: '<span class="status-badge status-active">Активен</span>',
+            outbid: '<span class="status-badge status-outbid">Перебита</span>',
+            lost: '<span class="status-badge status-lost">Проигран</span>'
+        };
+        
+        tbody.innerHTML = filtered.map(bid => {
+            const date = new Date(bid.created_at);
+            const dateStr = date.toLocaleDateString('ru-RU');
+            const timeStr = date.toLocaleTimeString('ru-RU');
+            
+            let action = `<a href="/lot/${bid.lot.id}" class="text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-white">К лоту</a>`;
+            if (bid.status === 'won' && bid.order_id) {
+                action = `<a href="/ticket/${bid.order_id}" class="text-[var(--gold)] text-xs font-bold uppercase tracking-widest hover:underline">Билет</a>`;
+            }
+            
+            return `
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                    <td class="px-4 md:px-8 py-4 md:py-6">
+                        <div class="flex items-center gap-3 md:gap-4">
+                            <img src="${escapeHtml(safeUrl(bid.lot.image_url) || LOT_PLACEHOLDER_IMG)}" onerror="this.onerror=null;this.src='/static/img/lots/placeholder.jpg'" class="w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover border border-white/10 flex-shrink-0">
+                            <div class="min-w-0 max-w-[140px] sm:max-w-[200px] md:max-w-[260px]">
+                                <p class="font-bold text-white truncate">${escapeHtml(bid.lot.title)}</p>
+                                <p class="text-xs text-gray-500 truncate">${escapeHtml(bid.lot.venue)}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 md:px-8 py-6 hidden md:table-cell">
+                        <p class="text-sm text-gray-300 mono-font">${escapeHtml(dateStr)}</p>
+                        <p class="text-[10px] text-gray-600 uppercase font-bold">${escapeHtml(timeStr)}</p>
+                    </td>
+                    <td class="px-4 md:px-8 py-6">
+                        <p class="text-sm font-bold text-white mono-font">${Number(bid.amount).toLocaleString()} AMD</p>
+                    </td>
+                    <td class="px-4 md:px-8 py-6">${statusBadges[bid.status] || ''}</td>
+                    <td class="px-4 md:px-8 py-6 text-right">${action}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    function renderWins() {
+        const wins = allOrders.filter(o => o.status === 'paid');
+        const tab = document.getElementById('winsTab');
+        
+        if (wins.length === 0) {
+            tab.innerHTML = '<div class="text-center py-16 text-gray-500">Пока нет выигранных лотов</div>';
+            return;
+        }
+        
+        tab.innerHTML = wins.map(order => `
+            <a href="/ticket/${Number(order.id)}" class="card-surface rounded-2xl p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-[var(--gold)]/30 transition-all">
+                <img src="${escapeHtml(safeUrl(order.lot.image_url) || LOT_PLACEHOLDER_IMG)}" onerror="this.onerror=null;this.src='/static/img/lots/placeholder.jpg'" class="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover">
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-white text-lg truncate">${escapeHtml(order.lot.title)}</h3>
+                    <p class="text-sm text-gray-500 truncate">${escapeHtml(order.lot.venue)}</p>
+                    <p class="text-xs text-gray-600 mt-1">${escapeHtml(order.lot.date)}</p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="text-xl md:text-2xl font-black text-[var(--gold)] mono-font">${Number(order.amount).toLocaleString()}</p>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold">AMD</p>
+                </div>
+            </a>
+        `).join('');
+    }
+    
+    // Tab switching
+    document.querySelectorAll('.profile-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('tab-active'));
+            btn.classList.add('tab-active');
+            
+            const tab = btn.dataset.tab;
+            document.getElementById('historyTab').classList.toggle('hidden', tab !== 'history');
+            document.getElementById('winsTab').classList.toggle('hidden', tab !== 'wins');
+        });
+    });
+    
+    document.querySelectorAll('.history-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.history-filter').forEach(b => {
+                b.classList.remove('bg-[var(--gold)]', 'text-black');
+                b.classList.add('text-gray-400');
+            });
+            btn.classList.add('bg-[var(--gold)]', 'text-black');
+            btn.classList.remove('text-gray-400');
+            renderHistory(document.getElementById('historySearch').value);
+        });
+    });
+    
+    document.getElementById('historySearch').addEventListener('input', (e) => {
+        renderHistory(e.target.value);
+    });
+    
+    async function logout() {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/';
+    }
+    
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('logoutBtnSide').addEventListener('click', logout);
+    document.getElementById('mobileLogoutBtn').addEventListener('click', logout);
+    
+    document.getElementById('burgerBtn').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.remove('hidden');
+    });
+    document.getElementById('closeMobileMenu').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.add('hidden');
+    });
+    
+    loadProfile();
+</script>
+</body>
+</html>

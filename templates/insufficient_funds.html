@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Недостаточно средств | Encore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&f[]=jet-brains-mono@400,700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --dark-bg: #0F0F0F; --surface: #1A1A1A; --error: #EF4444; --warning: #F97316; --success: #10B981; }
+        body { font-family: 'Satoshi', sans-serif; background: var(--dark-bg); color: #EDEDED; margin: 0; }
+        .font-cabinet { font-family: 'Cabinet Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card { background: rgba(26,26,26,0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+        .btn-hover { transition: all 0.2s cubic-bezier(0.4,0,0.2,1); }
+        .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -3px rgba(239,68,68,0.3); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<header class="fixed top-0 left-0 right-0 z-50 glass-card h-20 px-4 md:px-8 flex items-center justify-between border-b border-white/5">
+    <a href="/" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+        <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore
+    </a>
+    <a href="/profile" class="flex items-center gap-3 text-sm font-bold hover:text-[var(--gold)] transition-colors">
+        <iconify-icon icon="lucide:arrow-left"></iconify-icon> К профилю
+    </a>
+</header>
+
+<main class="flex-1 flex items-center justify-center px-4 md:px-8 py-20 mt-20">
+    <div class="w-full max-w-2xl">
+        <div class="text-center mb-10">
+            <div class="inline-flex w-32 h-32 bg-red-500/10 border-2 border-red-500/30 rounded-full items-center justify-center mb-8">
+                <iconify-icon icon="lucide:alert-circle" class="text-7xl text-red-500"></iconify-icon>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-cabinet font-black uppercase tracking-tight mb-4">Недостаточно средств</h1>
+            <p class="text-lg text-gray-400">Пополните баланс, чтобы оплатить билет</p>
+        </div>
+
+        <div class="glass-card rounded-[40px] p-8 md:p-10 space-y-6 mb-10">
+            <div class="flex items-center justify-between group">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-green-500/10 text-green-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <iconify-icon icon="lucide:wallet" class="text-2xl md:text-3xl"></iconify-icon>
+                    </div>
+                    <span class="text-base md:text-xl font-bold text-gray-300 uppercase tracking-widest">Текущий баланс</span>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <span class="text-2xl md:text-3xl font-mono font-bold text-green-500" id="balanceTxt">0</span>
+                    <span class="text-sm md:text-lg font-bold text-gray-400 ml-1">AMD</span>
+                </div>
+            </div>
+            
+            <div class="h-px bg-white/10"></div>
+            
+            <div class="flex items-center justify-between group">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <iconify-icon icon="lucide:gavel" class="text-2xl md:text-3xl"></iconify-icon>
+                    </div>
+                    <span class="text-base md:text-xl font-bold text-gray-300 uppercase tracking-widest">Требуется</span>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <span class="text-2xl md:text-3xl font-mono font-bold text-red-500" id="requiredTxt">0</span>
+                    <span class="text-sm md:text-lg font-bold text-gray-400 ml-1">AMD</span>
+                </div>
+            </div>
+            
+            <div class="h-px bg-white/10"></div>
+            
+            <div class="flex items-center justify-between group">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-orange-500/10 text-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <iconify-icon icon="lucide:minus-circle" class="text-2xl md:text-3xl"></iconify-icon>
+                    </div>
+                    <span class="text-base md:text-xl font-bold text-gray-300 uppercase tracking-widest">Не хватает</span>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <span class="text-2xl md:text-3xl font-mono font-bold text-orange-500" id="deficitTxt">0</span>
+                    <span class="text-sm md:text-lg font-bold text-gray-400 ml-1">AMD</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/wallet/topup" id="topupBtn" class="btn-hover px-8 py-4 md:py-5 bg-red-500 text-white rounded-2xl font-cabinet font-black uppercase tracking-widest text-sm shadow-xl shadow-red-500/20 flex items-center justify-center gap-3">
+                <iconify-icon icon="lucide:plus-circle" class="text-xl"></iconify-icon> Пополнить баланс
+            </a>
+            <a href="javascript:history.back()" class="px-8 py-4 md:py-5 border-2 border-white/10 text-white rounded-2xl font-cabinet font-black uppercase tracking-widest text-sm hover:bg-white/5 transition-all">Назад</a>
+        </div>
+
+        <div class="mt-10 text-center">
+            <p class="text-gray-500 text-xs flex items-center justify-center gap-2 uppercase tracking-widest">
+                <iconify-icon icon="lucide:info" class="text-base"></iconify-icon>
+                Срок оплаты — 24 часа с момента победы в аукционе
+            </p>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-black py-10 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-8 text-center text-gray-600 text-[10px] uppercase tracking-widest font-bold">
+        <p>© 2026 Encore Армения.</p>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='security.js') }}"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const balance = parseInt(params.get('balance') || '0');
+    const required = parseInt(params.get('required') || '0');
+    const deficit = parseInt(params.get('deficit') || (required - balance));
+    const orderId = params.get('order') || '';
+
+    document.getElementById('balanceTxt').textContent = balance.toLocaleString();
+    document.getElementById('requiredTxt').textContent = required.toLocaleString();
+    document.getElementById('deficitTxt').textContent = deficit.toLocaleString();
+
+    // После пополнения вернём пользователя к оплате этого же заказа.
+    // ?next= валидируется и на клиенте, и на сервере (open redirect).
+    if (orderId && /^\d+$/.test(orderId)) {
+        const nextUrl = '/winner/' + orderId;
+        const safe = window.safeNextUrl(nextUrl);
+        if (safe) {
+            const btn = document.getElementById('topupBtn');
+            btn.setAttribute('href', '/wallet/topup?next=' + encodeURIComponent(safe));
+        }
+    }
+</script>
+</body>
+</html>

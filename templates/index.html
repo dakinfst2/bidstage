@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encore — Аукцион билетов на концерты</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@900,800,700,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --gold: #D4AF37;
+            --dark-bg: #0F0F0F;
+            --surface: #1A1A1A;
+        }
+        
+        body {
+            font-family: 'Satoshi', sans-serif;
+            background-color: var(--dark-bg);
+            color: #EDEDED;
+            margin: 0;
+            padding: 0;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            letter-spacing: -0.02em;
+        }
+        
+        .timer-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .gold-glow:hover {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .card-hover:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: translateY(-4px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ── Стили из дизайн-макета ── */
+
+        /* Scroll-reveal: базовое состояние + активное */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.65s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero: золотое свечение под курсором (мышь-эффект добавляется в коммите 5) */
+        .stage-glow {
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Карточка лота: новый стиль */
+        .lot-card-new {
+            background: #111111;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .lot-card-new:hover {
+            border-color: var(--gold);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Nav: размытый фон (применяется к header в коммите 2) */
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.85) !important;
+        }
+
+        /* Hero: гигантский заголовок для бренд-слогана */
+        .hero-title {
+            font-size: clamp(90px, 14vw, 200px);
+            line-height: 0.88;
+            letter-spacing: -0.05em;
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-weight: 900;
+        }
+
+        /* Градиентный текст (золото → светлее) */
+        .accent-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #ffcc33 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Scroll-indicator (мышь с bounce-точкой) */
+        .scroll-indicator {
+            animation: fadeInUp 1s ease 1.2s both;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Парящие иконки в brand-hero ── */
+        @keyframes float-a {
+            0%, 100% { transform: translateY(0px)   rotate(-10deg); }
+            50%       { transform: translateY(-60px)  rotate(25deg);  }
+        }
+        @keyframes float-b {
+            0%, 100% { transform: translateY(0px)   rotate(25deg);  }
+            50%       { transform: translateY(-52px)  rotate(-18deg); }
+        }
+        @keyframes float-c {
+            0%, 100% { transform: translateY(-14px) rotate(0deg);   }
+            50%       { transform: translateY(54px)   rotate(28deg);  }
+        }
+        @keyframes float-d {
+            0%, 100% { transform: translateY(10px)  rotate(-26deg); }
+            50%       { transform: translateY(-66px)  rotate(14deg);  }
+        }
+        .hero-icon {
+            position: absolute;
+            color: var(--gold);
+            pointer-events: none;
+            z-index: 1;
+            line-height: 1;
+        }
+        @media (max-width: 768px) {
+            .hero-icon-desktop { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-white/10 h-20 px-4 md:px-12 flex items-center justify-between">
+            <div class="flex items-center gap-6 lg:gap-12">
+                <a href="#" id="header-logo-link" class="text-xl md:text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>
+                    Encore
+                </a>
+                <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    <a href="/" id="nav-auctions-link" class="hover:text-[var(--gold)] transition-colors">Просмотреть лоты</a>
+                    <a href="#how-it-works" id="nav-how-it-works-link" class="hover:text-[var(--gold)] transition-colors text-nowrap">Как это работает</a>
+                    <a href="/faq" id="nav-faq-link" class="hover:text-[var(--gold)] transition-colors">FAQ</a>
+                    <a href="/my-tickets" id="nav-tickets-link" class="hover:text-[var(--gold)] transition-colors text-nowrap">Мои билеты</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4 lg:gap-8">
+                <div class="relative hidden md:block">
+                    <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></iconify-icon>
+                    <input type="text" placeholder="Поиск концертов..." class="bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--gold)]/50 w-48 lg:w-64 text-white">
+                </div>
+                <div class="hidden md:flex items-center gap-3 lg:gap-5">
+                    <button id="header-login-btn" class="text-sm font-bold hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Вход</button>
+                    <button id="header-register-btn" class="bg-[var(--gold)] text-black px-5 lg:px-7 py-2.5 rounded-full text-sm font-extrabold uppercase tracking-widest gold-glow transition-all active:scale-95">Регистрация</button>
+                </div>
+                <!-- Burger Menu -->
+                <button id="burgerBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:menu" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col">
+            <div class="flex items-center justify-between px-4 h-20 border-b border-white/5">
+                <a href="/" class="text-xl font-bold tracking-tighter text-white flex flex-col items-start leading-tight">
+                    <span class="flex items-center gap-2"><iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>Encore</span>
+                    <span class="text-[10px] font-medium text-gray-500 normal-case tracking-normal mt-0.5">Лучшие места достаются тем, кто хочет сильнее</span>
+                </a>
+                <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
+                    <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+                </button>
+            </div>
+            <nav class="flex-1 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-white">
+                <a href="/" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Аукционы</a>
+                <a href="#how-it-works" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Как это работает</a>
+                <a href="/faq" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">FAQ</a>
+                <a href="/profile" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Профиль</a>
+                <a href="/my-tickets" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest">Мои билеты</a>
+                <div class="h-px w-32 bg-white/10"></div>
+                <a href="/login" class="hover:text-[var(--gold)] transition-colors uppercase tracking-widest text-lg">Вход</a>
+                <a href="/register" class="bg-[var(--gold)] text-black px-8 py-3 rounded-full text-lg font-bold">Регистрация</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <main class="flex-1 pt-20" id="mainPage">
+            <!-- Brand Hero Section -->
+            <section class="relative min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden" id="brand-hero">
+                <!-- Gold ambient blob -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-[var(--gold)]/10 blur-[160px] rounded-full pointer-events-none"></div>
+                <!-- Stage glow overlay -->
+                <div class="absolute inset-0 stage-glow pointer-events-none"></div>
+                <!-- Subtle grid texture -->
+                <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 80px 80px;"></div>
+
+                <!-- Floating concert icons -->
+                <iconify-icon icon="lucide:music" class="hero-icon" style="top:9%;left:4%;font-size:52px;opacity:0.22;animation:float-a 9s ease-in-out infinite;animation-delay:-3s;"></iconify-icon>
+                <iconify-icon icon="lucide:ticket" class="hero-icon" style="top:6%;right:5%;font-size:82px;opacity:0.16;animation:float-b 12s ease-in-out infinite;animation-delay:-8s;"></iconify-icon>
+                <iconify-icon icon="lucide:crown" class="hero-icon" style="top:44%;left:2%;font-size:96px;opacity:0.13;animation:float-c 11s ease-in-out infinite;animation-delay:-5s;"></iconify-icon>
+                <iconify-icon icon="lucide:headphones" class="hero-icon" style="top:20%;right:3%;font-size:58px;opacity:0.24;animation:float-d 8s ease-in-out infinite;animation-delay:-11s;"></iconify-icon>
+                <iconify-icon icon="lucide:star" class="hero-icon" style="bottom:18%;left:5%;font-size:66px;opacity:0.19;animation:float-b 10s ease-in-out infinite;animation-delay:-2s;"></iconify-icon>
+                <iconify-icon icon="lucide:mic" class="hero-icon" style="bottom:14%;right:4%;font-size:62px;opacity:0.21;animation:float-a 11s ease-in-out infinite;animation-delay:-7s;"></iconify-icon>
+                <iconify-icon icon="lucide:music-2" class="hero-icon hero-icon-desktop" style="top:70%;left:2%;font-size:46px;opacity:0.16;animation:float-c 9s ease-in-out infinite;animation-delay:-9s;"></iconify-icon>
+                <iconify-icon icon="lucide:disc-3" class="hero-icon hero-icon-desktop" style="top:52%;right:2%;font-size:118px;opacity:0.10;animation:float-d 13s ease-in-out infinite;animation-delay:-15s;"></iconify-icon>
+
+                <div class="relative z-10 max-w-5xl mx-auto px-6 md:px-12 text-center">
+                    <h1 class="hero-title accent-gradient mb-4">ENCORE</h1>
+                    <p class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight leading-tight">
+                        Лучшие места достаются<br class="hidden md:block"> тем, кто хочет сильнее
+                    </p>
+                    <p class="text-base md:text-lg text-gray-400 mb-8 max-w-xl mx-auto leading-relaxed">
+                        Аукцион билетов на лучшие концерты Армении.<br>
+                        Делай ставку — и забери своё место в зале.
+                    </p>
+                    <!-- Мини-статистика -->
+                    <div class="flex items-center justify-center gap-8 md:gap-16 mb-8">
+                        <div class="text-center">
+                            <p class="text-3xl md:text-4xl font-black text-[var(--gold)] tracking-tighter">{{ stats.active_lots }}</p>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">активных лотов</p>
+                        </div>
+                        <div class="w-px h-10 bg-white/10"></div>
+                        <div class="text-center">
+                            <p class="text-3xl md:text-4xl font-black text-[var(--gold)] tracking-tighter">{{ stats.total_bids }}</p>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">ставок сделано</p>
+                        </div>
+                        <div class="w-px h-10 bg-white/10"></div>
+                        <div class="text-center">
+                            <p class="text-3xl md:text-4xl font-black text-[var(--gold)] tracking-tighter">{{ stats.total_users }}</p>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">участников</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6">
+                        <a href="#lots" class="bg-[var(--gold)] text-black px-10 md:px-14 py-4 md:py-5 rounded-2xl font-black text-lg uppercase tracking-tighter hover:brightness-110 transition-all active:scale-95 flex items-center gap-3 gold-glow">
+                            Смотреть лоты
+                            <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+                        </a>
+                        <a href="#how-it-works" class="bg-white/8 text-white px-10 md:px-14 py-4 md:py-5 rounded-2xl font-black text-lg uppercase tracking-tighter hover:bg-white/15 transition-all active:scale-95 border border-white/20">
+                            Как это работает
+                        </a>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- About Section -->
+            <section class="py-24 md:py-32 px-6 reveal" id="about">
+                <div class="max-w-4xl mx-auto text-center">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-black uppercase tracking-[0.2em] mb-8 text-[var(--gold)]">
+                        О проекте
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black mb-10 leading-tight tracking-tighter text-white">
+                        Мы меняем правила доступа к живой музыке. Забудьте о фиксированных ценах и перекупщиках.
+                    </h2>
+                    <p class="text-xl text-gray-300 mb-12 leading-relaxed">
+                        Encore — прозрачная система, где каждый может побороться за билет своей мечты. Мы работаем напрямую с организаторами в Армении, чтобы гарантировать подлинность каждого лота и лучший опыт для фанатов живой музыки.
+                    </p>
+                    <a href="/faq" class="text-[var(--gold)] font-black uppercase tracking-widest inline-flex items-center gap-2 hover:gap-4 transition-all duration-300">
+                        Подробнее о платформе <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Featured Lot: section header -->
+            <div class="max-w-7xl mx-auto px-6 md:px-12 pt-24 pb-8 reveal">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div class="space-y-2">
+                        <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">Главный лот недели</h2>
+                        <p class="text-gray-500 uppercase tracking-widest text-sm font-bold">Самое горячее предложение прямо сейчас</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Section (featured lot) -->
+            <section class="relative h-[750px] overflow-hidden group reveal" id="heroSection">
+                <!-- Stage glow overlay (мышь-эффект — коммит 5) -->
+                <div class="absolute inset-0 stage-glow z-[5]" id="stageGlow"></div>
+                <!-- Gold ambient blob -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[var(--gold)]/8 blur-[120px] rounded-full pointer-events-none z-[5]"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-[var(--dark-bg)] via-[var(--dark-bg)]/40 to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2070&auto=format&fit=crop" alt="Featured Concert" class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-[2000ms]" id="heroImage">
+                <div class="relative z-20 h-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col justify-end pb-20">
+                    <div class="max-w-3xl">
+                        <div class="inline-flex items-center gap-2 bg-[var(--gold)]/20 text-[var(--gold)] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em] mb-6 border border-[var(--gold)]/30 backdrop-blur-md">
+                            <span class="w-2 h-2 bg-[var(--gold)] rounded-full animate-pulse"></span>
+                            Избранный аукцион
+                        </div>
+                        <h1 class="text-6xl md:text-8xl font-black text-white mb-4 tracking-tighter leading-[0.9]" id="heroTitle">System of a Down</h1>
+                        <p class="text-gray-300 text-lg md:text-2xl mb-10 font-medium" id="heroDescription">
+                            СКК им. Карена Демирчяна, Ереван • 18 августа 2026<br/>
+                            <span class="text-[var(--gold)]">Эксклюзивный VIP опыт в первом ряду + пропуск за кулисы</span>
+                        </p>
+                        <div class="flex flex-wrap items-center gap-8 md:gap-12 mb-12">
+                            <div class="space-y-1">
+                                <p class="text-gray-500 text-xs uppercase font-black tracking-widest">Текущая ставка</p>
+                                <p class="text-4xl md:text-5xl font-bold text-white tracking-tighter" id="heroPrice">50,000 <span class="text-xl font-medium text-gray-400 tracking-normal uppercase">AMD</span></p>
+                            </div>
+                            <div class="hidden md:block w-[1px] h-14 bg-white/10"></div>
+                            <div class="space-y-1">
+                                <p class="text-gray-500 text-xs uppercase font-black tracking-widest">Осталось времени</p>
+                                <p class="text-4xl md:text-5xl font-bold text-white tracking-tighter timer-font" id="heroTimer">02:00:00</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-5">
+                            <a href="#" id="hero-bid-cta-link" class="bg-white text-black px-8 md:px-12 py-4 md:py-5 rounded-2xl font-black text-lg md:text-xl hover:bg-[var(--gold)] transition-all flex items-center gap-3 uppercase tracking-tighter">
+                                Сделать ставку
+                                <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Scroll indicator -->
+                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-indicator">
+                    <div class="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center pt-2">
+                        <div class="w-1 h-2 bg-[var(--gold)] rounded-full animate-bounce"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Active Auctions Section -->
+            <section class="max-w-7xl mx-auto px-6 md:px-12 py-24 md:py-32 reveal" id="lots">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                    <div class="space-y-2">
+                        <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">Активные аукционы</h2>
+                        <p class="text-gray-500 uppercase tracking-widest text-sm font-bold" id="calendarSubtitle">Все предстоящие концерты</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <a href="/admin/lot/new" id="createLotHeaderBtn" class="hidden items-center gap-2 px-5 py-3 bg-[var(--gold)] text-black rounded-xl text-sm font-bold uppercase tracking-widest hover:brightness-110 transition-all">
+                            <iconify-icon icon="lucide:plus"></iconify-icon> Создать лот
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Afisha-style Calendar -->
+                <div class="mb-12">
+                    <!-- Month name above -->
+                    <p id="calendarMonthName" class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4"></p>
+                    <div class="flex items-center gap-0">
+                        <button id="calPrev" class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-500 hover:text-white transition-all active:scale-90">
+                            <iconify-icon icon="lucide:chevron-left" class="text-xl"></iconify-icon>
+                        </button>
+                        <div class="flex-1 overflow-hidden">
+                            <div id="calendarRibbon" class="flex transition-transform duration-500 ease-out">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                        <button id="calNext" class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-500 hover:text-white transition-all active:scale-90">
+                            <iconify-icon icon="lucide:chevron-right" class="text-xl"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Auction Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="lotsGrid">
+                    <!-- Cards will be generated by JavaScript -->
+                </div>
+
+                <!-- Show More Button -->
+                <div id="showMoreWrapper" class="hidden mt-12 flex justify-center">
+                    <button id="showMoreBtn"
+                            class="inline-flex items-center gap-3 px-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest hover:bg-white/10 hover:border-white/20 transition-all active:scale-95">
+                        Показать ещё
+                        <iconify-icon icon="lucide:chevron-down" class="text-xl"></iconify-icon>
+                    </button>
+                </div>
+
+                <!-- No results message -->
+                <div id="noLotsMessage" class="hidden text-center py-16">
+                    <iconify-icon icon="lucide:calendar-x" class="text-5xl text-gray-600 mb-4 block mx-auto"></iconify-icon>
+                    <p class="text-lg font-bold text-gray-400">Нет аукционов на эту дату</p>
+                    <p class="text-sm text-gray-600 mt-2">Попробуйте выбрать другой день</p>
+                </div>
+            </section>
+
+            <!-- How It Works Section -->
+            <section class="bg-[#141414] py-32 border-y border-white/5 reveal" id="how-it-works">
+                <div class="max-w-7xl mx-auto px-6 md:px-12">
+                    <div class="text-center mb-20 space-y-4">
+                        <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">Как это работает</h2>
+                        <p class="text-gray-500 uppercase tracking-widest text-sm font-bold">3 простых шага к вашему незабываемому событию</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24">
+                        <div class="text-center space-y-8 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-[var(--gold)]/10 border border-[var(--gold)]/20 rounded-[32px] flex items-center justify-center text-[var(--gold)] text-4xl shadow-[0_0_30px_rgba(212,175,55,0.1)]">
+                                <iconify-icon icon="lucide:share-2"></iconify-icon>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-extrabold text-white uppercase tracking-tight">1. Поделись мероприятием</h4>
+                                <p class="text-gray-400 leading-relaxed font-medium">Чтобы войти в аукцион, вы должны поделиться лотом в своем профиле. Наша система автоматически проверяет публикацию.</p>
+                            </div>
+                        </div>
+                        <div class="text-center space-y-8 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-[var(--gold)]/10 border border-[var(--gold)]/20 rounded-[32px] flex items-center justify-center text-[var(--gold)] text-4xl shadow-[0_0_30px_rgba(212,175,55,0.1)]">
+                                <iconify-icon icon="lucide:trending-up"></iconify-icon>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-extrabold text-white uppercase tracking-tight">2. Сделай ставку</h4>
+                                <p class="text-gray-400 leading-relaxed font-medium">Следите за живым трекером в реальном времени. Каждая ставка повышает шансы на победу. Последний, кто сделает ставку до конца таймера — побеждает.</p>
+                            </div>
+                        </div>
+                        <div class="text-center space-y-8 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-[var(--gold)]/10 border border-[var(--gold)]/20 rounded-[32px] flex items-center justify-center text-[var(--gold)] text-4xl shadow-[0_0_30px_rgba(212,175,55,0.1)]">
+                                <iconify-icon icon="lucide:ticket-check"></iconify-icon>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-extrabold text-white uppercase tracking-tight">3. Оплати и наслаждайся</h4>
+                                <p class="text-gray-400 leading-relaxed font-medium">Оплатите безопасно в отведенные сроки после выигрыша. Ваш электронный билет с QR-кодом будет отправлен мгновенно.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-black pt-32 pb-12 border-t border-white/5 reveal">
+            <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+                <div class="col-span-1 md:col-span-2 space-y-10">
+                    <a href="#" id="footer-logo-link" class="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
+                        <iconify-icon icon="lucide:ticket" class="text-[var(--gold)]"></iconify-icon>
+                        Encore
+                    </a>
+                    <p class="text-gray-500 text-xl max-w-md leading-relaxed font-medium">Лучшие места достаются тем, кто хочет сильнее.</p>
+                    <div class="flex items-center gap-5">
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1">
+                            <iconify-icon icon="mdi:instagram"></iconify-icon>
+                        </a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1">
+                            <iconify-icon icon="mdi:facebook"></iconify-icon>
+                        </a>
+                        <a href="/404" class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl hover:bg-[var(--gold)] hover:text-black transition-all hover:-translate-y-1">
+                            <iconify-icon icon="mdi:twitter"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Платформа</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/" id="footer-nav-browse">Просмотреть лоты</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="#how-it-works" id="footer-nav-how-it-works">Как это работает</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/faq" id="footer-nav-faq">FAQ</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/my-tickets">Мои билеты</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/profile">Профиль</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-black mb-10 uppercase tracking-[0.2em] text-sm">Правовое</h5>
+                    <ul class="space-y-5 text-gray-500 font-bold uppercase tracking-widest text-xs">
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/terms" id="footer-nav-tos">Условия использования</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/privacy" id="footer-nav-privacy">Политика конфиденциальности</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/rules" id="footer-nav-rules">Правила аукциона</a></li>
+                        <li class="hover:text-white transition-colors cursor-pointer"><a href="/guarantee" id="footer-nav-guarantee">Гарантия билета</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-gray-600 text-[10px] uppercase font-black tracking-[0.3em]">
+                <p>© 2026 Encore Армения. Все права защищены.</p>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                    <p>Support: +374 10 55 55 55</p>
+                    <p>Yerevan, Republic Square 1</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='balance.js') }}"></script>
+</body>
+</html>
